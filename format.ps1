@@ -1,0 +1,1 @@
+ls -Recurse $args[0] | Where-Object { $_.Extension -eq ".h" -or $_.Extension -eq ".cpp" } | foreach {clang-format -i -style="{BasedOnStyle: mozilla, IndentWidth: 4}" -sort-includes (Resolve-Path -Relative $_.FullName)}
