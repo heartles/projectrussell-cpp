@@ -1,7 +1,9 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <json/json-forwards.h>
 
+#include "../entityCreator.h"
 #include "../game.h"
 #include "../graphics.h"
 #include "../math.h"
@@ -10,10 +12,10 @@ class Player : public GameComponent
 {
     Sprite _spr;
     vec2 _pos;
- 
-  public:
+    Rectangle _sprPart;
 
-    Player(Game& game, const vec2& pos);
+  public:
+    Player(Game& game, Level& level, const EntityDesc& json);
 
     virtual void Update() override;
     virtual void Draw() override;

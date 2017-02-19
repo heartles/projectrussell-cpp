@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <string>
 
 #include <json/json.h>
@@ -37,8 +38,14 @@ struct Tileset
 
     inline vec2 TopLeftFromID(int id)
     {
-        vec2 src = { static_cast<float>(id % TileCountX) * TileWidth / ImageWidth,
-            static_cast<float>(id / TileCountX) * TileHeight / ImageHeight };
+        if (id >= TileCountTotal) {
+            throw std::out_of_range("ID out of range of tileset " + ImageName);
+        }
+
+        vec2 src = {
+            static_cast<float>(id % TileCountX) * TileWidth / ImageWidth,
+            static_cast<float>(id / TileCountX) * TileHeight / ImageHeight
+        };
 
         src.x += static_cast<float>(id % TileCountX * Spacing) / ImageWidth;
         src.y += static_cast<float>((id / TileCountX) * Spacing) / ImageHeight;
@@ -48,8 +55,44 @@ struct Tileset
 
         return src;
     }
+
+    inline Rectangle SprPartFromID(int id)
+    {
+        vec2 tl = TopLeftFromID(id);
+
+        return Rectangle::FromCorner(
+          tl, static_cast<float>(TileWidth) / ImageWidth,
+          static_cast<float>(TileHeight) / ImageHeight);
+    }
+
+    inline Rectangle SprPartFromGID(int gid)
+    {
+        auto id = gid - FirstTileID;
+        vec2 tl = TopLeftFromID(id);
+
+        return Rectangle::FromCorner(
+          tl, static_cast<float>(TileWidth) / ImageWidth,
+          static_cast<float>(TileHeight) / ImageHeight);
+    }
 };
 #pragma pack(pop)
+
+struct Level
+{
+    int Width, Height;
+    std::vector<Tileset> Tilesets;
+    int TileWidth, TileHeight;
+
+    inline Tileset* GetTilesetFromGID(int gid)
+    {
+        for (auto& tileset : Tilesets) {
+            if (gid - tileset.FirstTileID < tileset.TileCountTotal)
+                return &tileset;
+        }
+
+        throw std::invalid_argument("tile gid is out of range of all tilesets");
+    }
+};
 
 struct Game;
 class GameComponent
@@ -88,7 +131,7 @@ struct Game
     OrthoView Screen;
 
     std::vector<GameComponent*> Components;
-    std::vector<Tileset> Tilesets;
+    Level Level;
 
     ContentManager Content;
 
@@ -124,7 +167,7 @@ struct Game
 
 void Game_Init(Game&);
 void LoadLevel(const std::string& fileLoc, Game& info);
-void ParseTileLayer(Json::Value& layer, Game& info, int roomWidth);
+void ParseTileLayer(const Json::Value& layer, Level* info);
 void Game_Update(Game&);
 void Game_Render(Game&);
 vec2 ToGame(Game& info, vec2 screen);

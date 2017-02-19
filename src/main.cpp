@@ -58,7 +58,7 @@ main(int argc, char** argv)
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
         GLFWwindow* window = glfwCreateWindow(
-          mode->width, mode->height, "Fast Food Fight II", nullptr, nullptr);
+          mode->width, mode->height, "Unnamed RPG", nullptr, nullptr);
         if (!window) {
             Log("Could not create window");
             glfwTerminate();

@@ -209,6 +209,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\math.cpp" />
     <ClCompile Include="src\entities\player.cpp" />
+    <ClCompile Include="src\entities.cpp" />
     <ClCompile Include="src\shader.cpp" />
     <ClCompile Include="vendor\boost\filesystem\codecvt_error_category.cpp" />
     <ClCompile Include="vendor\boost\filesystem\operations.cpp" />
@@ -243,6 +244,7 @@
   <ItemGroup>
     <ClInclude Include="src\common.h" />
     <ClInclude Include="src\content.h" />
+    <ClInclude Include="src\entityCreator.h" />
     <ClInclude Include="src\game.h" />
     <ClInclude Include="src\graphics.h" />
     <ClInclude Include="src\math.h" />

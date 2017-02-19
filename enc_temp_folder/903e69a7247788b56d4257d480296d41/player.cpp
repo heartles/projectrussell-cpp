@@ -48,6 +48,19 @@ Player::Update()
     left = Engine.Input.Keyboard[GLFW_KEY_LEFT];
     up = Engine.Input.Keyboard[GLFW_KEY_UP];
     down = Engine.Input.Keyboard[GLFW_KEY_DOWN];
+
+    vel = {};
+    if (left)
+        vel.x -= 1;
+    if (right)
+        vel.x += 1;
+    if (up)
+        vel.y += 1;
+    if (down)
+        vel.y -= 1;
+
+    Engine.View.X += vel.x * Engine.DT;
+    Engine.View.Y += vel.y * Engine.DT;
 }
 
 void

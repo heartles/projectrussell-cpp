@@ -9,6 +9,7 @@
 #include <json/json.h>
 
 #include "content.h"
+#include "entityCreator.h"
 #include "graphics.h"
 #include "math.h"
 #include "shader.h"
@@ -55,8 +56,6 @@ Game_Init(Game& info)
 
     string fileLoc = info.GameDir + "/content/main.json";
 
-    vector<Tileset>* Tilesets = &info.Tilesets;
-
     LoadLevel(fileLoc, info);
 }
 
@@ -65,20 +64,18 @@ LoadLevel(const std::string& fileLoc, Game& info)
 {
     fstream file;
     file.open(fileLoc);
-    
+
     Json::Value val;
     file >> val;
-    
+    Level& level = info.Level;
     auto tilesetsJson = val["tilesets"];
-    info.Tilesets.reserve(tilesetsJson.size());
+    level.Tilesets.reserve(tilesetsJson.size());
 
-    auto tileWidth = val["tilewidth"].asInt();
-    auto tileHeight = val["tileheight"].asInt();
+    level.TileWidth = val["tilewidth"].asInt();
+    level.TileHeight = val["tileheight"].asInt();
 
-    int roomWidth = val["width"].asInt();
-    int roomHeight = val["height"].asInt();
-    std::cout << tileWidth;
-    std::cout << tileHeight;
+    level.Width = val["width"].asInt();
+    level.Height = val["height"].asInt();
 
     for (auto tileset : tilesetsJson) {
         Tileset t;
@@ -99,40 +96,57 @@ LoadLevel(const std::string& fileLoc, Game& info)
         t.Spacing = tileset["spacing"].asInt();
         t.Margin = tileset["margin"].asInt();
 
-        t.TileCountX = (t.ImageWidth + t.Spacing - 2 * t.Margin) / (t.TileWidth + t.Spacing);
-        t.TileCountY = (t.ImageHeight + t.Spacing - 2 * t.Margin) / (t.TileHeight + t.Spacing);
-        
+        t.TileCountX =
+          (t.ImageWidth + t.Spacing - 2 * t.Margin) / (t.TileWidth + t.Spacing);
+        t.TileCountY = (t.ImageHeight + t.Spacing - 2 * t.Margin) /
+                       (t.TileHeight + t.Spacing);
+
         t.TileCountTotal = tileset["tilecount"].asInt();
         t.FirstTileID = tileset["firstgid"].asInt();
 
         t.Image =
           info.Content.LoadSprite(info.GameDir + "/content" + t.ImageName);
 
-        info.Tilesets.push_back(t);
+        level.Tilesets.push_back(t);
     }
 
     auto layersJSON = val["layers"];
     for (auto layer : layersJSON) {
         if (layer["type"] == "tilelayer")
-            ParseTileLayer(layer, info, roomWidth);
+            ParseTileLayer(layer, &level);
         else if (layer["type"] == "objectgroup") {
             for (auto obj : layer["objects"]) {
-                auto halfWidth = obj["width"].asFloat() / 2 / tileWidth;
-                auto halfHeight = obj["height"].asFloat() / 2 / tileHeight;
+                auto halfWidth = obj["width"].asFloat() / 2 / level.TileWidth;
+                auto halfHeight =
+                  obj["height"].asFloat() / 2 / level.TileHeight;
 
                 auto pos =
-                    vec2{ obj["x"].asFloat() / tileWidth + halfWidth,
-                    -obj["y"].asFloat() / tileHeight + halfHeight };
+                  vec2{ obj["x"].asFloat() / level.TileWidth + halfWidth,
+                        -obj["y"].asFloat() / level.TileHeight + halfHeight };
 
                 std::string type = ToLower(obj["type"].asString());
-                if (type == "player") {
-                    
+
+                EntityDesc desc = { obj["name"].asString(),
+                                    type,
+                                    { obj["x"].asFloat() / level.TileWidth,
+                                      -obj["y"].asFloat() / level.TileHeight },
+                                    { obj["width"].asFloat() / level.TileWidth,
+                                      obj["height"].asFloat() /
+                                        level.TileHeight },
+                                    obj["rotation"].asFloat(),
+                                    obj["visible"].asBool(),
+                                    obj["gid"].asInt(),
+                                    obj["properties"] };
+
+                auto instantiator = ObjectCreator.find(type);
+                if (instantiator != ObjectCreator.end()) {
+                    (*instantiator).second(info, &level, desc);
                 }
             }
         }
     }
 
-    for (auto& t : info.Tilesets) {
+    for (auto& t : level.Tilesets) {
         glGenVertexArrays(1, &t.VertexArrayID);
         GLenum err = glGetError();
         glBindVertexArray(t.VertexArrayID);
@@ -154,7 +168,7 @@ LoadLevel(const std::string& fileLoc, Game& info)
 }
 
 void
-ParseTileLayer(Json::Value& layer, Game& info, int roomWidth)
+ParseTileLayer(const Json::Value& layer, Level* level)
 {
     auto data = layer["data"];
     for (int i = 0; i < data.size(); ++i) {
@@ -167,7 +181,7 @@ ParseTileLayer(Json::Value& layer, Game& info, int roomWidth)
 
         Tileset* tilesetPtr = nullptr;
 
-        for (auto& t : info.Tilesets) {
+        for (auto& t : level->Tilesets) {
             if (tileIndex - t.FirstTileID >= 0 &&
                 tileIndex - t.FirstTileID - t.TileCountTotal < 0) {
                 tilesetPtr = &t;
@@ -178,7 +192,7 @@ ParseTileLayer(Json::Value& layer, Game& info, int roomWidth)
         auto& tileset = *tilesetPtr;
 
         // Position given from top left corner of tile
-        vec2 position{ float(i % roomWidth), float(-i / roomWidth) };
+        vec2 position{ float(i % level->Width), float(-i / level->Width) };
 
         // tri 1
         tileset.Positions.push_back({
@@ -271,7 +285,7 @@ Game_Render(Game& info)
       Scale({ 2 / info.View.Width(), 2 / info.View.Height() }) *
       Translate({ -info.View.X, -info.View.Y });
 
-    for (auto& t : info.Tilesets) {
+    for (auto& t : info.Level.Tilesets) {
         glBindVertexArray(t.VertexArrayID);
 
         glBindTexture(GL_TEXTURE_2D, t.Image.TextureID);
