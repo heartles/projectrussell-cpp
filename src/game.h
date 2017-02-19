@@ -36,6 +36,42 @@ struct Tileset
         return TopLeftFromID(gid - FirstTileID);
     }
 
+    inline std::array<vec2, 4> && CornerCoordsFromID(int id)
+    {   
+        int tileX = id % TileCountX;
+        int spacingOffsetX = Spacing * tileX;
+
+        int minPixelX = tileX * TileWidth + spacingOffsetX;
+        int maxPixelX = minPixelX + TileWidth;
+
+        int tileY = id / TileCountX;
+        int spacingOffsetY = Spacing * tileY;
+
+        int minPixelY = tileY * TileHeight + spacingOffsetY;
+        int maxPixelY = minPixelY + TileHeight;
+        
+        float minX = minPixelX / static_cast<float>(ImageWidth);
+        float maxX = maxPixelX / static_cast<float>(ImageWidth);
+
+        float minY = minPixelY / static_cast<float>(ImageHeight);
+        float maxY = maxPixelY / static_cast<float>(ImageHeight);
+        
+        return std::move(std::array<vec2, 4>{
+            { {
+                    minX, minY
+                },
+                {
+                    maxX, minY
+                },
+                {
+                    maxX, maxY
+                },
+                {
+                    minX, maxY
+                }
+            }});
+    }
+
     inline vec2 TopLeftFromID(int id)
     {
         if (id >= TileCountTotal) {

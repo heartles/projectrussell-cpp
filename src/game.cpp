@@ -191,44 +191,40 @@ ParseTileLayer(const Json::Value& layer, Level* level)
 
         auto& tileset = *tilesetPtr;
 
-        // Position given from top left corner of tile
-        vec2 position{ float(i % level->Width), float(-i / level->Width) };
+        float minx = float(i % level->Width) - 0.01f;
+        float maxx = float(i % level->Width + 1) + 0.01f;
+
+        float maxy = float(-i / level->Width) + 0.01f;
+        float miny = float(-i / level->Width - 1) - 0.01f;
 
         // tri 1
         tileset.Positions.push_back({
-          position.x, position.y - 1, 1.0f,
+          minx, miny, 1.0f,
         }); // bottom left
         tileset.Positions.push_back({
-          position.x + 1, position.y - 1, 1.0f,
+          maxx, miny, 1.0f,
         }); // bottom right
         tileset.Positions.push_back({
-          position.x, position.y, 1.0f,
+          minx, maxy, 1.0f,
         }); // top left
 
         // tri 2
         tileset.Positions.push_back({
-          position.x + 1, position.y, 1.0f,
+          maxx, maxy, 1.0f,
         }); // top right
         tileset.Positions.push_back({
-          position.x, position.y, 1.0f,
+          minx, maxy, 1.0f,
         }); // top left
         tileset.Positions.push_back({
-          position.x + 1, position.y - 1, 1.0f,
+          maxx, miny, 1.0f,
         }); // bottom right
 
-        vec2 source = tileset.TopLeftFromID(tileIndex);
-        float dx = static_cast<float>(tileset.TileWidth) / tileset.ImageWidth;
-        float dy = static_cast<float>(tileset.TileHeight) / tileset.ImageHeight;
-        vec2 tl = source;
-        vec2 tr{
-            source.x + dx, source.y,
-        };
-        vec2 bl{
-            source.x, source.y + dy,
-        };
-        vec2 br{
-            source.x + dx, source.y + dy,
-        };
+        auto coords = tileset.CornerCoordsFromID(tileIndex);
+
+        vec2 &tl = coords[0];
+        vec2 &tr = coords[1];
+        vec2 &br = coords[2];
+        vec2 &bl = coords[3];
 
         // tri 1
         tileset.Texcoords.push_back(bl); // bottom left
