@@ -188,6 +188,11 @@ struct Game
         return Input.Keyboard[id] && !OldInput.Keyboard[id];
     }
 
+    inline bool MousePressed(int id)
+    {
+        return Input.Mouse[id] && !OldInput.Mouse[id];
+    }
+
     template <typename T>
     inline T* GetInstanceOf()
     {

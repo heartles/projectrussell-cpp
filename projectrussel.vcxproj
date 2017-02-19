@@ -66,6 +66,7 @@
     <LinkIncremental>true</LinkIncremental>
     <Linkage-freetype>
     </Linkage-freetype>
+    <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>

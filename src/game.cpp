@@ -3,6 +3,7 @@
 #include <cmath>
 #include <fstream>
 #include <iostream>
+#include <exception>
 
 #include <GLFW/glfw3.h>
 #include <glm/common.hpp>
@@ -189,6 +190,9 @@ ParseTileLayer(const Json::Value& layer, Level* level)
             }
         }
 
+        if (!tilesetPtr) {
+            throw std::exception("no matching tileset for tileid");
+        }
         auto& tileset = *tilesetPtr;
 
         float minx = float(i % level->Width) - 0.01f;
