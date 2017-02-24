@@ -3,19 +3,22 @@
 #include <exception>
 #include <iostream>
 #include <typeinfo>
+#include <cstdlib>
 
 #include "GLFW/glfw3.h"
 #include "glm/glm.hpp"
 #include "glm/gtx/transform.hpp"
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/path.hpp>
 
 #include "common.h"
 #include "game.h"
 #include "graphics.h"
 
 using namespace std;
-namespace fs = boost::filesystem;
+
+#ifdef WINDOWS
+#define getcwd _getcwd
+#include <direct.h>
+#endif
 
 std::vector<std::string> Args;
 
@@ -25,8 +28,8 @@ static_assert(sizeof(float) == sizeof(GLfloat), "float != GLfloat");
 string
 GetGameRootDir()
 {
-    auto path = fs::system_complete(fs::path(Args[0]));
-    string result = path.parent_path().string();
+    char *path = getcwd(nullptr, 32);
+    std::string result = path;
     Log(result);
 
     return result;
@@ -136,8 +139,8 @@ main(int argc, char** argv)
         }
 
         glfwTerminate();
-#ifdef DEBUG_EXCEPTION_HANDLE
 
+#ifdef DEBUG_EXCEPTION_HANDLE
     }
 
     catch (std::exception e) {
@@ -145,5 +148,6 @@ main(int argc, char** argv)
         std::exit(-1);
     }
 #endif
+
     return 0;
 }
