@@ -80,8 +80,6 @@ main(int argc, char** argv)
         glfwSwapInterval(0);
 
         Game g = {};
-        if (g.ShouldClose)
-            Log("\ntrue\n");
         g.GameDir = GetGameRootDir();
 
         g.Screen = Rectangle::FromCorner({}, mode->width, mode->height);

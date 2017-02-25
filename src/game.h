@@ -136,6 +136,7 @@ class GameComponent
   public:
     inline virtual void Update() {}
     inline virtual void Draw() {}
+    inline virtual void DrawGUI() {}
     inline virtual ~GameComponent() {}
     Game& Engine;
 
