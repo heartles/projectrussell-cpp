@@ -18,7 +18,7 @@
 using namespace std;
 
 struct Rectangle
-FromPixels(Sprite spr, struct Rectangle r)
+FromPixels(Texture spr, struct Rectangle r)
 {
     Rectangle output;
     output.X = r.X / spr.Width;
@@ -106,7 +106,7 @@ LoadLevel(const std::string& fileLoc, Game& info)
         t.FirstTileID = tileset["firstgid"].asInt();
 
         t.Image =
-          info.Content.LoadSprite(info.GameDir + "/content" + t.ImageName);
+          info.Content.LoadTexture(info.GameDir + "/content" + t.ImageName);
 
         level.Tilesets.push_back(t);
     }
@@ -288,7 +288,7 @@ Game_Render(Game& info)
     for (auto& t : info.Level.Tilesets) {
         glBindVertexArray(t.VertexArrayID);
 
-        glBindTexture(GL_TEXTURE_2D, t.Image.TextureID);
+        glBindTexture(GL_TEXTURE_2D, t.Image->TextureID);
 
         SetUniform("projection", viewMat);
         SetUniform("color", Colors::White);

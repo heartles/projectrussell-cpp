@@ -16,9 +16,9 @@ size_t GetFileSize(std::FILE* file);
 class ContentManager
 {
     std::map<std::pair<std::string, std::string>, Shader> _shaders{};
-    std::map<std::string, Sprite> _sprites{};
+    std::map<std::string, Texture> _textures{};
 
   public:
     Shader& LoadShader(std::string vertPath, std::string fragPath);
-    Sprite& LoadSprite(std::string filename);
+    const Texture * LoadTexture(std::string filename);
 };

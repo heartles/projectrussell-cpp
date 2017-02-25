@@ -12,7 +12,6 @@ class Player : public GameComponent
 {
     Sprite _spr;
     vec2 _pos;
-    Rectangle _sprPart;
     
     vec2 _moveTarget;
 

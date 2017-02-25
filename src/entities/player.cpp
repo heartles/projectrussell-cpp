@@ -8,13 +8,10 @@
 Player::Player(Game& game, Level& level, const EntityDesc& obj)
   : GameComponent(game)
 {
-    _spr =
-      Engine.Content.LoadSprite(Engine.GameDir + "/content/roguelikeChar.png");
+    _spr = level.GetTilesetFromGID(obj.TileGID)->SpriteFromGID(obj.TileGID);
 
     _pos = obj.Pos; 
     _moveTarget = _pos;
-
-    _sprPart = level.GetTilesetFromGID(obj.TileGID)->SprPartFromGID(obj.TileGID);
 }
 
 ivec2 GetTilePos(Game &engine, vec2 screen)
@@ -55,6 +52,6 @@ Player::Update()
 void
 Player::Draw()
 {
-    Engine.View.DrawSpritePart(_spr, _pos, _sprPart, { .5f, .5f }, 0,
+    Engine.View.DrawSprite(_spr, _pos, 0.0f, { .5f, .5f },
                                Colors::White);
 }

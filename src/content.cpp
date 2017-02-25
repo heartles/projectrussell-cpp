@@ -62,14 +62,14 @@ ContentManager::LoadShader(std::string vertPath, std::string fragPath)
     return _shaders[{ vertPath, fragPath }];
 }
 
-Sprite&
-ContentManager::LoadSprite(std::string filename)
+const Texture *
+ContentManager::LoadTexture(std::string filename)
 {
-    if (_sprites.count(filename)) {
-        return _sprites[filename];
+    if (_textures.count(filename)) {
+        return &_textures[filename];
     }
 
-    auto s = DEBUG_LoadSprite(filename);
-    _sprites[filename] = s;
-    return _sprites[filename];
+    auto s = DEBUG_LoadTexture(filename);
+    _textures[filename] = s;
+    return &_textures[filename];
 }
