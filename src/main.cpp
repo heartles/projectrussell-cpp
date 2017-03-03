@@ -1,9 +1,9 @@
 #include <array>
 #include <cstdio>
+#include <cstdlib>
 #include <exception>
 #include <iostream>
 #include <typeinfo>
-#include <cstdlib>
 
 #include "GLFW/glfw3.h"
 #include "glm/glm.hpp"
@@ -28,7 +28,7 @@ static_assert(sizeof(float) == sizeof(GLfloat), "float != GLfloat");
 string
 GetGameRootDir()
 {
-    char *path = getcwd(nullptr, 32);
+    char* path = getcwd(nullptr, 32);
     std::string result = path;
     Log(result);
 
@@ -60,8 +60,8 @@ main(int argc, char** argv)
 
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-        GLFWwindow* window = glfwCreateWindow(
-          mode->width, mode->height, "Unnamed RPG", nullptr, nullptr);
+        GLFWwindow* window = glfwCreateWindow(mode->width, mode->height,
+                                              "Unnamed RPG", nullptr, nullptr);
         if (!window) {
             Log("Could not create window");
             glfwTerminate();
@@ -82,8 +82,9 @@ main(int argc, char** argv)
         Game g = {};
         g.GameDir = GetGameRootDir();
 
-        g.Screen = OrthoView(Rectangle::FromCorner({}, mode->width, mode->height), &g);
-
+        g.Screen =
+          OrthoView(Rectangle::FromCorner({}, mode->width, mode->height), &g);
+        
         Log("Initializing Game...");
         Game_Init(g);
         double time = glfwGetTime();

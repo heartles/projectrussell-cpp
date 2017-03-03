@@ -9,14 +9,15 @@
 #include "../math.h"
 #include "unit.h"
 
-class PlayerController
-    : public GameComponent
+class PlayerController : public GameComponent
 {
-    Unit *_selected = nullptr;
+    Unit* _selected = nullptr;
 
-public:
-    inline PlayerController(Game &eng)
-        : GameComponent(eng) {}
+  public:
+    inline PlayerController(Game& eng)
+      : GameComponent(eng)
+    {
+    }
 
     virtual void Update() override;
     virtual void DrawGUI() override;

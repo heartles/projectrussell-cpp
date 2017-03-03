@@ -44,12 +44,16 @@ union vec2
     float _arr[2];
 
     constexpr inline vec2(float xx, float yy)
-        : x(xx), y(yy)
-    { }
+      : x(xx)
+      , y(yy)
+    {
+    }
 
     constexpr inline vec2()
-        : x(0), y(0)
-    { }
+      : x(0)
+      , y(0)
+    {
+    }
 
     inline float& operator[](int index)
     {
@@ -126,12 +130,17 @@ struct ivec2
         return { x * scalar, y * scalar };
     }
 
-    constexpr inline explicit ivec2(const vec2 &v)
-        : x(int(v.x)), y(int(v.y)) {}
+    constexpr inline explicit ivec2(const vec2& v)
+      : x(int(v.x))
+      , y(int(v.y))
+    {
+    }
 
-    constexpr inline ivec2(int xx, int yy) 
-        : x(xx), y(yy)
-    {}
+    constexpr inline ivec2(int xx, int yy)
+      : x(xx)
+      , y(yy)
+    {
+    }
 
     ivec2() = default;
     ivec2(const ivec2&) = default;
@@ -139,11 +148,11 @@ struct ivec2
     ivec2& operator=(const ivec2&) = default;
     ivec2& operator=(ivec2&&) = default;
 
-
     inline explicit operator vec2() const { return { float(x), float(y) }; }
 };
 
-constexpr bool operator==(const ivec2 &v1, const ivec2 &v2)
+constexpr bool
+operator==(const ivec2& v1, const ivec2& v2)
 {
     return (v1.x == v2.x) && (v1.y == v2.y);
 }

@@ -62,7 +62,7 @@ ContentManager::LoadShader(std::string vertPath, std::string fragPath)
     return _shaders[{ vertPath, fragPath }];
 }
 
-const Texture *
+const Texture*
 ContentManager::LoadTexture(std::string filename)
 {
     if (_textures.count(filename)) {

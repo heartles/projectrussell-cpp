@@ -1,20 +1,20 @@
 #include "game.h"
 
 #include <cmath>
+#include <exception>
 #include <fstream>
 #include <iostream>
-#include <exception>
 
 #include <GLFW/glfw3.h>
 #include <glm/common.hpp>
 #include <json/json.h>
 
 #include "content.h"
+#include "entities/player.h"
 #include "entityCreator.h"
 #include "graphics.h"
 #include "math.h"
 #include "shader.h"
-#include "entities/player.h"
 
 using namespace std;
 
@@ -41,6 +41,7 @@ ToGame(Game& info, vec2 screen)
     return result;
 }
 
+Font font;
 void
 Game_Init(Game& info)
 {
@@ -55,6 +56,10 @@ Game_Init(Game& info)
                                    info.GameDir + "/content/textured.gl.frag");
 
     shader.Apply();
+
+    auto s = info.Content.LoadShader(info.GameDir + "/content/text.gl.vert",
+        info.GameDir + "/content/text.gl.frag");
+    font = DEBUG_LoadFont("C:/Windows/fonts/times.ttf", 32, s);
 
     string fileLoc = info.GameDir + "/content/main.json";
 
@@ -228,10 +233,10 @@ ParseTileLayer(const Json::Value& layer, Level* level)
 
         auto coords = tileset.CornerCoordsFromID(tileIndex);
 
-        vec2 &tl = coords[0];
-        vec2 &tr = coords[1];
-        vec2 &br = coords[2];
-        vec2 &bl = coords[3];
+        vec2& tl = coords[0];
+        vec2& tr = coords[1];
+        vec2& br = coords[2];
+        vec2& bl = coords[3];
 
         // tri 1
         tileset.Texcoords.push_back(bl); // bottom left
@@ -307,10 +312,10 @@ Game_Render(Game& info)
         c->Draw();
     }
 
-    for (auto & u : info.Units) {
+    for (auto& u : info.Units) {
         DrawUnit(&info, u);
     }
-    
+
     for (auto c : info.Components) {
         c->DrawGUI();
     }

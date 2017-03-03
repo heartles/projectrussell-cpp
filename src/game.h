@@ -7,9 +7,9 @@
 
 #include "common.h"
 #include "content.h"
+#include "entities/unit.h"
 #include "graphics.h"
 #include "math.h"
-#include "entities/unit.h"
 
 typedef Texture (*PFN_LOADIMAGE)(std::string filename);
 typedef void (*PFN_DRAWSPRITE)(Texture, struct Rectangle, struct Rectangle,

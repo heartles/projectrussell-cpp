@@ -61,8 +61,8 @@ DEBUG_LoadFont(std::string filename, int pxSize, Shader s)
 
         Character character = {
             new Texture{ int(face->glyph->bitmap.width),
-                    int(face->glyph->bitmap.rows), std::vector<uint8_t>{},
-                    texture },
+                         int(face->glyph->bitmap.rows), std::vector<uint8_t>{},
+                         texture },
             { face->glyph->bitmap_left, face->glyph->bitmap_top },
             { face->glyph->advance.x, face->glyph->advance.y }
         };
@@ -90,29 +90,34 @@ const std::array<const vec2, 4> uvFullImage{ {
 } };
 
 void
-Font::RenderText(std::string text, vec2 pos, float scale, vec4 color)
+Font::RenderText(std::string text, glm::mat3 matrix, vec4 color)
 {
     _shader.Apply();
-
+    vec2 pos = {};
     for (auto c : text) {
         auto ch = _codepoints[c];
 
-        vec2 chPos = { pos.x + scale * ch.Offset.x,
-                       pos.y - scale * (ch.Texture->Height - ch.Offset.y) };
+        vec2 chPos = { pos.x + ch.Offset.x,
+                       pos.y - (ch.Texture->Height - ch.Offset.y) };
 
-        vec2 wh = { ch.Texture->Width * scale, ch.Texture->Height * scale };
+        vec2 wh = { float(ch.Texture->Width), float(ch.Texture->Height) };
 
         glm::mat3 screenToHUD =
-          Translate({ -1, -1 }) * Scale({ 2 / 1920.0f, 2 / 1080.0f }) *
+          matrix *
           Translate(chPos) * Translate(wh / 2) * Scale(wh); /**/
 
         glUniform3f(glGetUniformLocation(_shader._program, "textColor"),
                     color.r, color.g, color.b);
 
-        DEBUG_DrawTexture(ch.Texture, screenToHUD,
-                         FullImage, Colors::White);
-        pos.x += ch.Advance.x / 64 * scale;
+        DEBUG_DrawTexture(ch.Texture, screenToHUD, FullImage, Colors::White);
+        pos.x += ch.Advance.x / 64;
     }
+}
+
+void
+OrthoView::RenderText(std::string text, Font *f, vec2 pos, vec2 scale, vec4 color)
+{
+    f->RenderText(text, Matrix() * Translate(pos) * Scale(scale), color);
 }
 
 Texture
@@ -137,8 +142,8 @@ DEBUG_LoadTexture(std::string filename)
 }
 
 internal_variable GLuint vertexArrays[2];
-internal_variable GLuint &vertexArrayID = vertexArrays[0];
-internal_variable GLuint &rectVertArray = vertexArrays[1];
+internal_variable GLuint& vertexArrayID = vertexArrays[0];
+internal_variable GLuint& rectVertArray = vertexArrays[1];
 
 internal_variable GLuint vertexBuffers[2];
 internal_variable GLuint& locationBuffer = vertexBuffers[0];
@@ -200,10 +205,10 @@ initializeBuffers()
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 
     glBindVertexArray(rectVertArray);
-    
+
     glGenBuffers(1, &rectVertBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, rectVertBuffer);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 }
 
 internal_function GLuint
@@ -237,8 +242,8 @@ SetUniform(std::string name, const vec4& value)
 }
 
 void
-DEBUG_DrawTexture(const Texture * tex, glm::mat3 projection, Rectangle texPart,
-                 vec4 color)
+DEBUG_DrawTexture(const Texture* tex, glm::mat3 projection, Rectangle texPart,
+                  vec4 color)
 {
     if (locationBuffer == 0 || uvBuffer == 0) {
         initializeBuffers();
@@ -280,12 +285,12 @@ DEBUG_DrawTexture(const Texture * tex, glm::mat3 projection, Rectangle texPart,
 }
 
 void
-OrthoView::DrawTexturePart(const Texture * tex, vec2 pos, Rectangle texPart, vec2 scale,
-                          float rotation, vec4 color)
+OrthoView::DrawTexturePart(const Texture* tex, vec2 pos, Rectangle texPart,
+                           vec2 scale, float rotation, vec4 color)
 {
     auto shader =
-        Engine->Content.LoadShader(Engine->GameDir + "/content/textured.gl.vert",
-            Engine->GameDir + "/content/textured.gl.frag");
+      Engine->Content.LoadShader(Engine->GameDir + "/content/textured.gl.vert",
+                                 Engine->GameDir + "/content/textured.gl.frag");
 
     shader.Apply();
 
@@ -296,32 +301,34 @@ OrthoView::DrawTexturePart(const Texture * tex, vec2 pos, Rectangle texPart, vec
 }
 
 void
-OrthoView::DrawRectangleScreen(Rectangle screenCoords, vec4 color)
+OrthoView::DrawRectangle(Rectangle rect, vec4 color)
 {
     if (locationBuffer == 0 || uvBuffer == 0) {
         initializeBuffers();
     }
 
-    float minX = screenCoords.Min().x / HalfWidth - 1,
-        minY = -screenCoords.Min().y / HalfHeight + 1,
-        maxX = screenCoords.Max().x / HalfWidth - 1,
-        maxY = -screenCoords.Max().y / HalfHeight + 1;
+    float minX = rect.Min().x,
+        minY = rect.Min().y,
+        maxX = rect.Max().x,
+        maxY = rect.Max().y;
 
-    Engine->Content.LoadShader(Engine->GameDir + "/content/colored2DnoProj.gl.vert", Engine->GameDir + "/content/colored2DnoProj.gl.frag").Apply();
+    Engine->Content
+      .LoadShader(Engine->GameDir + "/content/colored.gl.vert",
+                  Engine->GameDir + "/content/colored.gl.frag")
+      .Apply();
 
-    vec2 coords[4] = {
-        {
-            minX, maxY
-        }, // Bottom left
-        {
-            maxX, maxY
-        }, // Bottom right
-        {
-            minX, minY
-        }, // top left
-        {
-            maxX, minY
-        }, // top right
+    vec3 coords[4] = {
+        { minX, minY, 1 }, // Bottom left
+        { maxX, minY, 1 }, // Bottom right
+        { minX, maxY, 1 }, // top left
+        { maxX, maxY, 1 }, // top right
+    };
+
+    glm::vec3 testcoords[4] = {
+        Matrix() * glm::vec3{ minX, maxY, 1 }, // Bottom left
+        Matrix() * glm::vec3{ maxX, maxY, 1 }, // Bottom right
+        Matrix() * glm::vec3{ minX, minY, 1 }, // top left
+        Matrix() * glm::vec3{ maxX, minY, 1 }, // top right
     };
 
     glBindVertexArray(rectVertArray);
@@ -329,9 +336,9 @@ OrthoView::DrawRectangleScreen(Rectangle screenCoords, vec4 color)
     glBufferData(GL_ARRAY_BUFFER, sizeof(coords), coords, GL_DYNAMIC_DRAW);
 
     SetUniform("color", color);
+    SetUniform("projection", Matrix());
 
     glEnableVertexAttribArray(0);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     glDisableVertexAttribArray(0);
-
 }

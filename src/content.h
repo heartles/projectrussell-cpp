@@ -20,5 +20,5 @@ class ContentManager
 
   public:
     Shader& LoadShader(std::string vertPath, std::string fragPath);
-    const Texture * LoadTexture(std::string filename);
+    const Texture* LoadTexture(std::string filename);
 };

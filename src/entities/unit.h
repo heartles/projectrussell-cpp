@@ -9,5 +9,5 @@ struct Unit
 };
 
 struct Game;
-void DrawUnit(Game *engine, const Unit &unit);
-vec2 GetTileCenter(const ivec2 &v);
+void DrawUnit(Game* engine, const Unit& unit);
+vec2 GetTileCenter(const ivec2& v);
