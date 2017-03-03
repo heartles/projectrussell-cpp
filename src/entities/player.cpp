@@ -5,15 +5,6 @@
 // TODO
 #include <GLFW/glfw3.h>
 
-Player::Player(Game& game, Level& level, const EntityDesc& obj)
-  : GameComponent(game)
-{
-    _spr = level.GetTilesetFromGID(obj.TileGID)->SpriteFromGID(obj.TileGID);
-
-    _pos = obj.Pos; 
-    _moveTarget = _pos;
-}
-
 ivec2 GetTilePos(Game &engine, vec2 screen)
 {
     auto game = ToGame(engine, screen); //TODO: should this be inlined?
@@ -26,32 +17,33 @@ vec2 TilePosToFloat(ivec2 tile)
 }
 
 void
-Player::Update()
+PlayerController::Update()
 {
-    if (Engine.Input.Keyboard[GLFW_KEY_ESCAPE])
-        Engine.ShouldClose = true;
-
+    auto mousePos = GetTilePos(Engine, { Engine.Input.MouseX, Engine.Input.MouseY });
     if (Engine.MousePressed(0)) {
-        _moveTarget = TilePosToFloat(GetTilePos(Engine, { Engine.Input.MouseX, Engine.Input.MouseY }));
+        for (auto &u : Engine.Units) {
+            if (u.TilePos == mousePos) {
+                if (&u != _selected) {
+                    _selected = &u;
+                }
+                else {
+                    _selected = nullptr;
+                }
+            }
+        }
     }
 
-    vec2 vel = {};
-    vel = _moveTarget - _pos;
-    vel = vel.Normalize();
-    vel *= Min((_moveTarget - _pos).Length(), Engine.DT * 3);
-
-
-    vec2 potentialPos = _pos + vel;
-
-    Rectangle mask = { potentialPos.x, potentialPos.y, 0.5f, 0.5f };
-    ResolveCollision(mask, &potentialPos, Engine);
-
-    _pos = potentialPos;
+    if (Engine.MousePressed(1) && _selected) {
+        _selected->TilePos = mousePos;
+    }
 }
 
 void
-Player::Draw()
+PlayerController::DrawGUI()
 {
-    Engine.View.DrawSprite(_spr, _pos, 0.0f, { .5f, .5f },
-                               Colors::White);
+    if (_selected) {
+        auto spr = Engine.Content.LoadTexture(Engine.GameDir + "/content/selected.png")->Sprite();
+
+        Engine.View.DrawSprite(spr, GetTileCenter(_selected->TilePos), 0, { 1, 1 }, Colors::White);
+    }
 }

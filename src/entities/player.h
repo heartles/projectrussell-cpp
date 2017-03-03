@@ -7,17 +7,17 @@
 #include "../game.h"
 #include "../graphics.h"
 #include "../math.h"
+#include "unit.h"
 
-class Player : public GameComponent
+class PlayerController
+    : public GameComponent
 {
-    Sprite _spr;
-    vec2 _pos;
-    
-    vec2 _moveTarget;
+    Unit *_selected = nullptr;
 
-  public:
-    Player(Game& game, Level& level, const EntityDesc& json);
+public:
+    inline PlayerController(Game &eng)
+        : GameComponent(eng) {}
 
     virtual void Update() override;
-    virtual void Draw() override;
+    virtual void DrawGUI() override;
 };

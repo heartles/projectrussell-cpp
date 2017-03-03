@@ -14,6 +14,7 @@
 #include "graphics.h"
 #include "math.h"
 #include "shader.h"
+#include "entities/player.h"
 
 using namespace std;
 
@@ -166,6 +167,8 @@ LoadLevel(const std::string& fileLoc, Game& info)
 
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
     }
+
+    info.Components.push_back(new PlayerController(info));
 }
 
 void
@@ -302,6 +305,14 @@ Game_Render(Game& info)
 
     for (auto c : info.Components) {
         c->Draw();
+    }
+
+    for (auto & u : info.Units) {
+        DrawUnit(&info, u);
+    }
+    
+    for (auto c : info.Components) {
+        c->DrawGUI();
     }
 }
 

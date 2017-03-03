@@ -9,6 +9,7 @@
 #include "content.h"
 #include "graphics.h"
 #include "math.h"
+#include "entities/unit.h"
 
 typedef Texture (*PFN_LOADIMAGE)(std::string filename);
 typedef void (*PFN_DRAWSPRITE)(Texture, struct Rectangle, struct Rectangle,
@@ -84,6 +85,8 @@ struct Game
     {
         componentRmQueue.push_back(c);
     }
+
+    std::vector<Unit> Units;
 
     inline bool KeyPressed(int id)
     {

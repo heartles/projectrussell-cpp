@@ -35,28 +35,21 @@ Clamp(T val, T min, T max)
     return Min(Max(val, min), max);
 }
 
-struct vec2
+union vec2
 {
-    union
+    struct
     {
-        struct
-        {
-            float x, y;
-        };
-        float _arr[2];
+        float x, y;
     };
+    float _arr[2];
 
-    inline vec2(float xx, float yy)
-    {
-        x = xx;
-        y = yy;
-    }
+    constexpr inline vec2(float xx, float yy)
+        : x(xx), y(yy)
+    { }
 
-    inline vec2()
-    {
-        x = 0;
-        y = 0;
-    }
+    constexpr inline vec2()
+        : x(0), y(0)
+    { }
 
     inline float& operator[](int index)
     {
@@ -126,15 +119,34 @@ struct vec2
 
 struct ivec2
 {
-    int x, y;
+    int x = 0, y = 0;
 
-    inline ivec2 operator*(int scalar) const
+    constexpr inline ivec2 operator*(int scalar) const
     {
         return { x * scalar, y * scalar };
     }
 
-    inline operator vec2() const { return { float(x), float(y) }; }
+    constexpr inline explicit ivec2(const vec2 &v)
+        : x(int(v.x)), y(int(v.y)) {}
+
+    constexpr inline ivec2(int xx, int yy) 
+        : x(xx), y(yy)
+    {}
+
+    ivec2() = default;
+    ivec2(const ivec2&) = default;
+    ivec2(ivec2&&) = default;
+    ivec2& operator=(const ivec2&) = default;
+    ivec2& operator=(ivec2&&) = default;
+
+
+    inline explicit operator vec2() const { return { float(x), float(y) }; }
 };
+
+constexpr bool operator==(const ivec2 &v1, const ivec2 &v2)
+{
+    return (v1.x == v2.x) && (v1.y == v2.y);
+}
 
 struct vec3
 {

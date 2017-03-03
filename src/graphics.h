@@ -74,7 +74,7 @@ struct Texture
 
     inline Sprite Sprite() const
     {
-        return { this, Rectangle{ 0, 0, 1, 1 } };
+        return { this, Rectangle{ 0.5f, 0.5f, 0.5f, 0.5f } };
     }
 };
 
