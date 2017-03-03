@@ -136,10 +136,15 @@ DEBUG_LoadTexture(std::string filename)
     return s;
 }
 
-GLuint vertexArrayID;
-GLuint vertexBuffers[2];
-GLuint& locationBuffer = vertexBuffers[0];
-GLuint& uvBuffer = vertexBuffers[1];
+internal_variable GLuint vertexArrays[2];
+internal_variable GLuint &vertexArrayID = vertexArrays[0];
+internal_variable GLuint &rectVertArray = vertexArrays[1];
+
+internal_variable GLuint vertexBuffers[2];
+internal_variable GLuint& locationBuffer = vertexBuffers[0];
+internal_variable GLuint& uvBuffer = vertexBuffers[1];
+
+internal_variable GLuint rectVertBuffer;
 
 vector<vec3> locationBufferData{
     {
@@ -174,7 +179,7 @@ vector<vec2> uvBufferData{
 internal_function void
 initializeBuffers()
 {
-    glGenVertexArrays(1, &vertexArrayID);
+    glGenVertexArrays(2, vertexArrays);
     glBindVertexArray(vertexArrayID);
 
     glGenBuffers(2, vertexBuffers);
@@ -193,6 +198,12 @@ initializeBuffers()
                  uvBufferData.data(), GL_DYNAMIC_DRAW);
 
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+    glBindVertexArray(rectVertArray);
+    
+    glGenBuffers(1, &rectVertBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, rectVertBuffer);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 }
 
 internal_function GLuint
@@ -272,8 +283,55 @@ void
 OrthoView::DrawTexturePart(const Texture * tex, vec2 pos, Rectangle texPart, vec2 scale,
                           float rotation, vec4 color)
 {
+    auto shader =
+        Engine->Content.LoadShader(Engine->GameDir + "/content/textured.gl.vert",
+            Engine->GameDir + "/content/textured.gl.frag");
+
+    shader.Apply();
+
     auto projection =
       Matrix() * Translate(pos) * Rotate(-rotation) * Scale(scale);
 
     DEBUG_DrawTexture(tex, projection, texPart, color);
+}
+
+void
+OrthoView::DrawRectangleScreen(Rectangle screenCoords, vec4 color)
+{
+    if (locationBuffer == 0 || uvBuffer == 0) {
+        initializeBuffers();
+    }
+
+    float minX = screenCoords.Min().x / HalfWidth - 1,
+        minY = -screenCoords.Min().y / HalfHeight + 1,
+        maxX = screenCoords.Max().x / HalfWidth - 1,
+        maxY = -screenCoords.Max().y / HalfHeight + 1;
+
+    Engine->Content.LoadShader(Engine->GameDir + "/content/colored2DnoProj.gl.vert", Engine->GameDir + "/content/colored2DnoProj.gl.frag").Apply();
+
+    vec2 coords[4] = {
+        {
+            minX, maxY
+        }, // Bottom left
+        {
+            maxX, maxY
+        }, // Bottom right
+        {
+            minX, minY
+        }, // top left
+        {
+            maxX, minY
+        }, // top right
+    };
+
+    glBindVertexArray(rectVertArray);
+    glBindBuffer(GL_ARRAY_BUFFER, rectVertBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(coords), coords, GL_DYNAMIC_DRAW);
+
+    SetUniform("color", color);
+
+    glEnableVertexAttribArray(0);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glDisableVertexAttribArray(0);
+
 }

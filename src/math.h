@@ -248,6 +248,12 @@ Lerp(const T& v1, const T& v2, float amount)
     return (v1 + (v2 - v1) * amount);
 }
 
+inline int
+Round(float f)
+{
+    return (fmod(f, 1.0f) < 0.5f) ? int(f) : int(f) + 1;
+}
+
 /*
 inline
 template<typename T>

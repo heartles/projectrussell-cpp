@@ -10,6 +10,7 @@
 #include <glm/glm.hpp>
 
 #define internal_function static
+#define internal_variable static
 #define countof_array(arr) (sizeof(arr) / sizeof(arr[0]))
 const float pi = 3.14159f;
 

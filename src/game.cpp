@@ -45,7 +45,7 @@ void
 Game_Init(Game& info)
 {
     Log("creating world");
-    info.View = Rectangle{ 0, 0, 30 / 2, 16.875f / 2.0f };
+    info.View = OrthoView(Rectangle{ 0, 0, 30 / 2, 16.875f / 2.0f }, &info);
 
     StackAlloc alloc(1024 * 1024);
 

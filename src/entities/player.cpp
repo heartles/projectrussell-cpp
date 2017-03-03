@@ -42,8 +42,10 @@ void
 PlayerController::DrawGUI()
 {
     if (_selected) {
-        auto spr = Engine.Content.LoadTexture(Engine.GameDir + "/content/selected.png")->Sprite();
+         auto spr = Engine.Content.LoadTexture(Engine.GameDir + "/content/selected.png")->Sprite();
 
         Engine.View.DrawSprite(spr, GetTileCenter(_selected->TilePos), 0, { 1, 1 }, Colors::White);
     }
+
+    Engine.View.DrawRectangleScreen(Rectangle::FromCorner({ 0, 14 }, 32, 4), Colors::Red);
 }

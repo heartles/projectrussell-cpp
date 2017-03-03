@@ -21,6 +21,6 @@ ObjectCreationMap ObjectCreator {
           Rectangle v =
             Rectangle::FromCorner(obj.Pos, obj.Scale.x, obj.Scale.y);
           v.Y -= obj.Scale.y;
-          Engine.View = v;
+          Engine.View = OrthoView(v, &Engine);
       } }
 };

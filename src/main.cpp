@@ -82,7 +82,7 @@ main(int argc, char** argv)
         Game g = {};
         g.GameDir = GetGameRootDir();
 
-        g.Screen = Rectangle::FromCorner({}, mode->width, mode->height);
+        g.Screen = OrthoView(Rectangle::FromCorner({}, mode->width, mode->height), &g);
 
         Log("Initializing Game...");
         Game_Init(g);

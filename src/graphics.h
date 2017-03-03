@@ -102,15 +102,17 @@ public:
     void RenderText(std::string, vec2 pos, float scale, vec4 color);
 };
 
+struct Game;
 struct OrthoView : public Rectangle
 {
+    Game *Engine;
   public:
     inline glm::mat3 Matrix() const
     {
         return Scale({ 2 / Width(), 2 / Height() }) * Translate({ -X, -Y });
     }
 
-    inline OrthoView(const Rectangle& r) { *static_cast<Rectangle*>(this) = r; }
+    inline OrthoView(const Rectangle& r, Game *e) : Engine(e) { *static_cast<Rectangle*>(this) = r; }
 
     inline OrthoView() = default;
 
@@ -136,6 +138,8 @@ struct OrthoView : public Rectangle
     {
         DrawTexturePart(spr.Tex, pos, spr.Part, scale, rot, color);
     }
+
+    void DrawRectangleScreen(Rectangle screenCoords, vec4 color);
 };
 
 struct View
