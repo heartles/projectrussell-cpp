@@ -22,7 +22,7 @@ GetFileSize(std::FILE* file)
 }
 
 std::string
-ReadAllText(std::string filename)
+ReadAllText(const std::string& filename)
 {
     Log(filename);
     auto file = std::fopen(filename.c_str(), "rb");
@@ -33,7 +33,7 @@ ReadAllText(std::string filename)
     }
 
     size_t fileSize = GetFileSize(file);
-    auto buf = new char[fileSize];
+    auto buf = new char[fileSize + 1];
 
     auto res = std::fread(buf, 1, fileSize, file);
     if (res != fileSize) {
@@ -42,29 +42,40 @@ ReadAllText(std::string filename)
     }
 
     // Add our null terminated byte
-    ((char*)buf)[fileSize] = 0;
+    buf[fileSize] = 0;
 
     std::fclose(file);
-    Log("2");
-    return (char*)buf;
+    std::string str = buf;
+    delete[] buf;
+    return std::move(str);
 }
 
-Shader&
-ContentManager::LoadShader(std::string vertPath, std::string fragPath)
+ContentManager::ContentManager(std::string dataDir)
+  : _dataDir(std::move(dataDir))
 {
+    _defaultFontShader =
+      LoadShader("/content/text.gl.vert", "/content/text.gl.frag");
+}
+
+const Shader*
+ContentManager::LoadShader(std::string vp, std::string fp)
+{
+    std::string vertPath = _dataDir + vp, fragPath = _dataDir + fp;
     if (_shaders.count({ vertPath, fragPath })) {
-        return _shaders[{ vertPath, fragPath }];
+        return &_shaders[{ vertPath, fragPath }];
     }
 
     auto s = DEBUG_LoadShader(vertPath, fragPath);
     _shaders[{ vertPath, fragPath }] = s;
 
-    return _shaders[{ vertPath, fragPath }];
+    return &_shaders[{ vertPath, fragPath }];
 }
 
 const Texture*
-ContentManager::LoadTexture(std::string filename)
+ContentManager::LoadTexture(std::string f)
 {
+    std::string filename = _dataDir + f;
+
     if (_textures.count(filename)) {
         return &_textures[filename];
     }
@@ -72,4 +83,23 @@ ContentManager::LoadTexture(std::string filename)
     auto s = DEBUG_LoadTexture(filename);
     _textures[filename] = s;
     return &_textures[filename];
+}
+
+const Font*
+ContentManager::LoadFont(std::string f, int pxSize, const Shader* shader)
+{
+    if (shader == nullptr) {
+        shader = _defaultFontShader;
+    }
+
+    std::string filename = f; // TODO: better filesystem abstraction for fonts
+    FontDesc d{ filename, pxSize, shader };
+
+    if (_fonts.count(d)) {
+        return &_fonts[d];
+    }
+
+    auto font = DEBUG_LoadFont(filename, pxSize, shader);
+    _fonts[d] = font;
+    return &_fonts[d];
 }

@@ -40,21 +40,21 @@ PlayerController::Update()
     }
 }
 
-extern Font font;
 void
 PlayerController::DrawGUI()
 {
     if (_selected) {
         auto spr =
-          Engine.Content.LoadTexture(Engine.GameDir + "/content/selected.png")
-            ->Sprite();
+          Engine.Content.LoadTexture("/content/selected.png")->Sprite();
 
         Engine.View.DrawSprite(spr, GetTileCenter(_selected->TilePos), 0,
                                { 1, 1 }, Colors::White);
     }
 
     Engine.Screen.DrawRectangle(Rectangle::FromCorner({ 0, 0 }, 60, 60),
-                                    Colors::Red);
+                                Colors::Red);
 
-    Engine.Screen.RenderText("test", &font, { 60, 60 }, { 1, 1 }, Colors::Black);
+    auto font = Engine.Content.LoadFont("C:/Windows/fonts/times.ttf", 32);
+
+    Engine.Screen.RenderText("test", font, { 60, 60 }, { 1, 1 }, Colors::Black);
 }

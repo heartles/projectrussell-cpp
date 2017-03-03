@@ -8,7 +8,7 @@ struct Shader
 {
     GLuint _vertShader, _fragShader, _program;
 
-    void Apply();
+    void Apply() const;
 };
 
 Shader DEBUG_LoadShader(std::string vertPath, std::string fragPath);

@@ -57,8 +57,6 @@ struct BoundingBox
 
 struct Game
 {
-    std::string GameDir;
-
     float DT;
     Input OldInput;
     struct Input Input;
@@ -108,6 +106,12 @@ struct Game
         }
 
         return nullptr;
+    }
+
+    inline Game(std::string dataDir)
+      : Content(dataDir)
+      , ShouldClose(false)
+    {
     }
 };
 

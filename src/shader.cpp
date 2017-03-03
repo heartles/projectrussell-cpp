@@ -5,7 +5,7 @@
 #include <vector>
 
 void
-Shader::Apply()
+Shader::Apply() const
 {
     glUseProgram(_program);
 }

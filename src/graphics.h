@@ -87,31 +87,33 @@ struct Character
 class Font
 {
     std::map<uint64_t, Character> _codepoints;
-    Shader _shader;
+    const Shader* _shader;
 
   public:
     inline Font() {}
 
-    inline Font(std::map<uint64_t, Character>&& p, Shader s)
+    inline Font(std::map<uint64_t, Character>&& p, const Shader* s)
       : _codepoints(p)
       , _shader(s)
     {
     }
 
-    void RenderText(std::string, glm::mat3 matrix, vec4 color);
+    void RenderText(std::string, glm::mat3 matrix, vec4 color) const;
 };
 
 struct Game;
 struct OrthoView : public Rectangle
 {
     Game* Engine;
-    
+
   public:
     Rectangle Viewport = { 0, 0, 1, 1 };
-      
+
     inline glm::mat3 Matrix() const
     {
-        return Scale({ Viewport.Width(), Viewport.Height() }) * Translate({ Viewport.X, Viewport.Y }) * Scale({ 1 / Width(), 1 / Height() }) * Translate({ -X, -Y });
+        return Scale({ Viewport.Width(), Viewport.Height() }) *
+               Translate({ Viewport.X, Viewport.Y }) *
+               Scale({ 1 / Width(), 1 / Height() }) * Translate({ -X, -Y });
     }
 
     inline OrthoView(const Rectangle& r, Game* e)
@@ -148,7 +150,8 @@ struct OrthoView : public Rectangle
 
     void DrawRectangle(Rectangle coords, vec4 color);
 
-    void RenderText(std::string text, Font *f, vec2 pos, vec2 scale, vec4 color);
+    void RenderText(std::string text, const Font* f, vec2 pos, vec2 scale,
+                    vec4 color);
 };
 
 struct View
@@ -255,4 +258,4 @@ void SetUniform(std::string name, const vec4& value);
 void DEBUG_DrawTexture(const Texture* tex, glm::mat3 projection,
                        Rectangle texPart, vec4 color);
 
-Font DEBUG_LoadFont(std::string filename, int pxSize, Shader s);
+Font DEBUG_LoadFont(std::string filename, int pxSize, const Shader* s);

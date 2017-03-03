@@ -61,7 +61,7 @@ main(int argc, char** argv)
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
         GLFWwindow* window = glfwCreateWindow(mode->width, mode->height,
-                                              "Unnamed RPG", nullptr, nullptr);
+                                              "Unnamed RPG", monitor, nullptr);
         if (!window) {
             Log("Could not create window");
             glfwTerminate();
@@ -79,12 +79,11 @@ main(int argc, char** argv)
 
         glfwSwapInterval(0);
 
-        Game g = {};
-        g.GameDir = GetGameRootDir();
+        Game g = Game(GetGameRootDir());
 
         g.Screen =
           OrthoView(Rectangle::FromCorner({}, mode->width, mode->height), &g);
-        
+
         Log("Initializing Game...");
         Game_Init(g);
         double time = glfwGetTime();

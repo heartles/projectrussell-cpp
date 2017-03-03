@@ -41,7 +41,6 @@ ToGame(Game& info, vec2 screen)
     return result;
 }
 
-Font font;
 void
 Game_Init(Game& info)
 {
@@ -52,16 +51,15 @@ Game_Init(Game& info)
 
     info.ClearColor = Colors::White;
 
-    auto shader = DEBUG_LoadShader(info.GameDir + "/content/textured.gl.vert",
-                                   info.GameDir + "/content/textured.gl.frag");
+    auto shader = info.Content.LoadShader("/content/textured.gl.vert",
+                                          "/content/textured.gl.frag");
 
-    shader.Apply();
+    shader->Apply();
 
-    auto s = info.Content.LoadShader(info.GameDir + "/content/text.gl.vert",
-        info.GameDir + "/content/text.gl.frag");
-    font = DEBUG_LoadFont("C:/Windows/fonts/times.ttf", 32, s);
+    auto s =
+      info.Content.LoadShader("/content/text.gl.vert", "/content/text.gl.frag");
 
-    string fileLoc = info.GameDir + "/content/main.json";
+    string fileLoc = info.Content.ResolvePath("/content/main.json");
 
     LoadLevel(fileLoc, info);
 }
@@ -111,8 +109,7 @@ LoadLevel(const std::string& fileLoc, Game& info)
         t.TileCountTotal = tileset["tilecount"].asInt();
         t.FirstTileID = tileset["firstgid"].asInt();
 
-        t.Image =
-          info.Content.LoadTexture(info.GameDir + "/content" + t.ImageName);
+        t.Image = info.Content.LoadTexture("/content" + t.ImageName);
 
         level.Tilesets.push_back(t);
     }
@@ -283,11 +280,10 @@ Game_Render(Game& info)
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    auto shader =
-      info.Content.LoadShader(info.GameDir + "/content/textured.gl.vert",
-                              info.GameDir + "/content/textured.gl.frag");
+    auto shader = info.Content.LoadShader("/content/textured.gl.vert",
+                                          "/content/textured.gl.frag");
 
-    shader.Apply();
+    shader->Apply();
 
     glm::mat3 viewMat = // Identity<mat3>();
       Scale({ 2 / info.View.Width(), 2 / info.View.Height() }) *

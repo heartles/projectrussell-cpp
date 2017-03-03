@@ -16,7 +16,7 @@ using namespace std;
 FT_Library Freetype = 0;
 
 Font
-DEBUG_LoadFont(std::string filename, int pxSize, Shader s)
+DEBUG_LoadFont(std::string filename, int pxSize, const Shader* s)
 {
     if (!Freetype) {
         auto err = FT_Init_FreeType(&Freetype);
@@ -27,6 +27,8 @@ DEBUG_LoadFont(std::string filename, int pxSize, Shader s)
 
     FT_Face face;
 
+    // TODO: actually enumerate face indexes instead of just taking
+    // the first one
     auto err = FT_New_Face(Freetype, filename.c_str(), 0, &face);
     if (err) {
         throw err;
@@ -90,12 +92,12 @@ const std::array<const vec2, 4> uvFullImage{ {
 } };
 
 void
-Font::RenderText(std::string text, glm::mat3 matrix, vec4 color)
+Font::RenderText(std::string text, glm::mat3 matrix, vec4 color) const
 {
-    _shader.Apply();
+    _shader->Apply();
     vec2 pos = {};
     for (auto c : text) {
-        auto ch = _codepoints[c];
+        auto ch = _codepoints.at(c);
 
         vec2 chPos = { pos.x + ch.Offset.x,
                        pos.y - (ch.Texture->Height - ch.Offset.y) };
@@ -103,10 +105,9 @@ Font::RenderText(std::string text, glm::mat3 matrix, vec4 color)
         vec2 wh = { float(ch.Texture->Width), float(ch.Texture->Height) };
 
         glm::mat3 screenToHUD =
-          matrix *
-          Translate(chPos) * Translate(wh / 2) * Scale(wh); /**/
+          matrix * Translate(chPos) * Translate(wh / 2) * Scale(wh); /**/
 
-        glUniform3f(glGetUniformLocation(_shader._program, "textColor"),
+        glUniform3f(glGetUniformLocation(_shader->_program, "textColor"),
                     color.r, color.g, color.b);
 
         DEBUG_DrawTexture(ch.Texture, screenToHUD, FullImage, Colors::White);
@@ -115,7 +116,8 @@ Font::RenderText(std::string text, glm::mat3 matrix, vec4 color)
 }
 
 void
-OrthoView::RenderText(std::string text, Font *f, vec2 pos, vec2 scale, vec4 color)
+OrthoView::RenderText(std::string text, const Font* f, vec2 pos, vec2 scale,
+                      vec4 color)
 {
     f->RenderText(text, Matrix() * Translate(pos) * Scale(scale), color);
 }
@@ -288,11 +290,10 @@ void
 OrthoView::DrawTexturePart(const Texture* tex, vec2 pos, Rectangle texPart,
                            vec2 scale, float rotation, vec4 color)
 {
-    auto shader =
-      Engine->Content.LoadShader(Engine->GameDir + "/content/textured.gl.vert",
-                                 Engine->GameDir + "/content/textured.gl.frag");
+    auto shader = Engine->Content.LoadShader("/content/textured.gl.vert",
+                                             "/content/textured.gl.frag");
 
-    shader.Apply();
+    shader->Apply();
 
     auto projection =
       Matrix() * Translate(pos) * Rotate(-rotation) * Scale(scale);
@@ -307,15 +308,12 @@ OrthoView::DrawRectangle(Rectangle rect, vec4 color)
         initializeBuffers();
     }
 
-    float minX = rect.Min().x,
-        minY = rect.Min().y,
-        maxX = rect.Max().x,
-        maxY = rect.Max().y;
+    float minX = rect.Min().x, minY = rect.Min().y, maxX = rect.Max().x,
+          maxY = rect.Max().y;
 
     Engine->Content
-      .LoadShader(Engine->GameDir + "/content/colored.gl.vert",
-                  Engine->GameDir + "/content/colored.gl.frag")
-      .Apply();
+      .LoadShader("/content/colored.gl.vert", "/content/colored.gl.frag")
+      ->Apply();
 
     vec3 coords[4] = {
         { minX, minY, 1 }, // Bottom left
