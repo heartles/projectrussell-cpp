@@ -340,3 +340,25 @@ OrthoView::DrawRectangle(Rectangle rect, vec4 color)
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     glDisableVertexAttribArray(0);
 }
+
+vec2
+OrthoView::WorldToViewport(const vec2& point) const
+{
+    // todo: remove glm matrix dependencies
+    glm::vec3 p{ point.x, point.y, 1 };
+
+    auto ret = Matrix() * p;
+
+    return { ret.x, ret.y };
+}
+
+vec2
+OrthoView::ViewportToWorld(const vec2& point) const
+{
+    // todo: remove glm matrix dependencies
+    glm::vec3 p{ point.x, point.y, 1 };
+
+    auto ret = glm::inverse(Matrix()) * p;
+
+    return { ret.x, ret.y };
+}

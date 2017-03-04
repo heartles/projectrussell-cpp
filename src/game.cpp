@@ -30,17 +30,6 @@ FromPixels(Texture spr, struct Rectangle r)
     return output;
 }
 
-vec2
-ToGame(Game& info, vec2 screen)
-{
-    vec2 result;
-
-    result.x = screen.x * info.View.HalfWidth + info.View.X;
-    result.y = screen.y * info.View.HalfHeight + info.View.Y;
-
-    return result;
-}
-
 void
 Game_Init(Game& info)
 {

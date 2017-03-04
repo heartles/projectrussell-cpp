@@ -12,6 +12,7 @@
 class PlayerController : public GameComponent
 {
     Unit* _selected = nullptr;
+    ActionType _selectedAction = ActionType::None;
 
   public:
     inline PlayerController(Game& eng)

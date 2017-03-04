@@ -86,12 +86,12 @@ struct Game
 
     std::vector<Unit> Units;
 
-    inline bool KeyPressed(int id)
+    inline bool KeyPressed(int id) const
     {
         return Input.Keyboard[id] && !OldInput.Keyboard[id];
     }
 
-    inline bool MousePressed(int id)
+    inline bool MousePressed(int id) const
     {
         return Input.Mouse[id] && !OldInput.Mouse[id];
     }
@@ -120,5 +120,4 @@ void LoadLevel(const std::string& fileLoc, Game& info);
 void ParseTileLayer(const Json::Value& layer, Level* info);
 void Game_Update(Game&);
 void Game_Render(Game&);
-vec2 ToGame(Game& info, vec2 screen);
 void ResolveCollision(Rectangle mask, vec2* pos, Game& engine);

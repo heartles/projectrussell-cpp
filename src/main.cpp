@@ -61,7 +61,7 @@ main(int argc, char** argv)
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
         GLFWwindow* window = glfwCreateWindow(mode->width, mode->height,
-                                              "Unnamed RPG", monitor, nullptr);
+                                              "Unnamed RPG", nullptr, nullptr);
         if (!window) {
             Log("Could not create window");
             glfwTerminate();

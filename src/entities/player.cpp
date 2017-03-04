@@ -8,7 +8,7 @@
 ivec2
 GetTilePos(Game& engine, vec2 screen)
 {
-    auto game = ToGame(engine, screen); // TODO: should this be inlined?
+    auto game = engine.View.ViewportToWorld(screen);
     return { int(game.x), int(game.y) };
 }
 
@@ -21,9 +21,11 @@ TilePosToFloat(ivec2 tile)
 void
 PlayerController::Update()
 {
+    bool m = Engine.MousePressed(0);
     auto mousePos =
       GetTilePos(Engine, { Engine.Input.MouseX, Engine.Input.MouseY });
     if (Engine.MousePressed(0)) {
+        bool clickedOnUnit = false;
         for (auto& u : Engine.Units) {
             if (u.TilePos == mousePos) {
                 if (&u != _selected) {
@@ -31,6 +33,32 @@ PlayerController::Update()
                 } else {
                     _selected = nullptr;
                 }
+
+                clickedOnUnit = true;
+            }
+        }
+
+        bool clickedOnButton = false;
+        if (_selected) {
+            vec2 screenMousePos = Engine.Screen.ViewportToWorld(
+              { Engine.Input.MouseX, Engine.Input.MouseY });
+            if (Rectangle::FromCorner({ 60, 60 }, 120, 60)
+                  .Contains(screenMousePos)) {
+                if (_selectedAction == ActionType::Move) {
+                    _selectedAction = ActionType::None;
+                } else {
+                    _selectedAction = ActionType::Move;
+                }
+
+                clickedOnButton = true;
+            }
+        }
+
+        if (!clickedOnUnit && !clickedOnButton) {
+            switch (_selectedAction) {
+                case ActionType::Move: {
+                    _selected->TilePos = mousePos;
+                } break;
             }
         }
     }
@@ -51,10 +79,21 @@ PlayerController::DrawGUI()
                                { 1, 1 }, Colors::White);
     }
 
-    Engine.Screen.DrawRectangle(Rectangle::FromCorner({ 0, 0 }, 60, 60),
-                                Colors::Red);
+    Engine.Screen.DrawRectangle(Rectangle::FromCorner({ 0, 0 }, 1920, 180),
+                                Colors::Black);
 
     auto font = Engine.Content.LoadFont("C:/Windows/fonts/times.ttf", 32);
 
-    Engine.Screen.RenderText("test", font, { 60, 60 }, { 1, 1 }, Colors::Black);
+    if (_selected) {
+
+        if (_selectedAction == ActionType::Move)
+            Engine.Screen.DrawRectangle(
+              Rectangle::FromCorner({ 60, 60 }, 120, 60), Colors::Green);
+        else
+            Engine.Screen.DrawRectangle(
+              Rectangle::FromCorner({ 60, 60 }, 120, 60), Colors::Red);
+
+        Engine.Screen.RenderText("Move", font, { 90, 90 }, { 1, 1 },
+                                 Colors::Black);
+    }
 }

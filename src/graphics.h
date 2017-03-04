@@ -43,6 +43,12 @@ struct Rectangle
                Min().y < other.Max().y && Max().y > other.Min().y;
     }
 
+    inline bool Contains(const vec2& point) const
+    {
+        return point.x < Max().x && point.x > Min().x && point.y < Max().y &&
+               point.y > Min().y;
+    }
+
     static inline Rectangle FromCorner(vec2 mincorner, float w, float h)
     {
         Rectangle res{};
@@ -111,8 +117,8 @@ struct OrthoView : public Rectangle
 
     inline glm::mat3 Matrix() const
     {
-        return Scale({ Viewport.Width(), Viewport.Height() }) *
-               Translate({ Viewport.X, Viewport.Y }) *
+        return Translate({ Viewport.X, Viewport.Y }) *
+               Scale({ Viewport.Width(), Viewport.Height() }) *
                Scale({ 1 / Width(), 1 / Height() }) * Translate({ -X, -Y });
     }
 
@@ -152,6 +158,9 @@ struct OrthoView : public Rectangle
 
     void RenderText(std::string text, const Font* f, vec2 pos, vec2 scale,
                     vec4 color);
+
+    vec2 WorldToViewport(const vec2& val) const;
+    vec2 ViewportToWorld(const vec2& val) const;
 };
 
 struct View
