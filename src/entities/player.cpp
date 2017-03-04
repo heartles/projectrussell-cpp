@@ -18,6 +18,25 @@ TilePosToFloat(ivec2 tile)
     return { tile.x + 0.5f, tile.y - 0.5f };
 }
 
+void 
+PlayerController::selectUnit(Unit *u)
+{
+    _selected = u;
+    _selectedAction = nullptr;
+    _availableActions.assign({
+        { ActionType::Move, "Move", Rectangle::FromCorner({ 60, 60 }, 120, 60) },
+        { ActionType::Attack, "Attack", Rectangle::FromCorner({ 200, 60 }, 120, 60) }
+    });
+}
+
+void
+PlayerController::deselectUnit(Unit *u)
+{
+    _selected = nullptr;
+    _selectedAction = nullptr;
+    _availableActions.clear();
+}
+
 void
 PlayerController::Update()
 {
@@ -26,15 +45,18 @@ PlayerController::Update()
       GetTilePos(Engine, { Engine.Input.MouseX, Engine.Input.MouseY });
     if (Engine.MousePressed(0)) {
         bool clickedOnUnit = false;
-        for (auto& u : Engine.Units) {
-            if (u.TilePos == mousePos) {
-                if (&u != _selected) {
-                    _selected = &u;
-                } else {
-                    _selected = nullptr;
-                }
+        if (!_selectedAction || _selectedAction->Type == ActionType::None) {
+            for (auto &u : Engine.Units) {
+                if (u.TilePos == mousePos) {
+                    if (&u != _selected) {
+                        selectUnit(&u);
+                    }
+                    else {
+                        deselectUnit(_selected);
+                    }
 
-                clickedOnUnit = true;
+                    clickedOnUnit = true;
+                }
             }
         }
 
@@ -42,22 +64,32 @@ PlayerController::Update()
         if (_selected) {
             vec2 screenMousePos = Engine.Screen.ViewportToWorld(
               { Engine.Input.MouseX, Engine.Input.MouseY });
-            if (Rectangle::FromCorner({ 60, 60 }, 120, 60)
-                  .Contains(screenMousePos)) {
-                if (_selectedAction == ActionType::Move) {
-                    _selectedAction = ActionType::None;
-                } else {
-                    _selectedAction = ActionType::Move;
-                }
+            
+            for (auto &button : _availableActions) {
+                if (button.Box.Contains(screenMousePos)) {
+                    if (_selectedAction == &button) {
+                        _selectedAction = nullptr;
+                    }
+                    else {
+                        _selectedAction = &button;
+                    }
 
-                clickedOnButton = true;
+                    clickedOnButton = true;
+                }
             }
         }
 
-        if (!clickedOnUnit && !clickedOnButton) {
-            switch (_selectedAction) {
+        if (!clickedOnUnit && !clickedOnButton && _selectedAction) {
+            switch (_selectedAction->Type) {
                 case ActionType::Move: {
                     _selected->TilePos = mousePos;
+                } break;
+                case ActionType::Attack: {
+                    for (auto u : Engine.Units) {
+                        if (u.TilePos == mousePos) {
+                            Log("Attack made!");
+                        }
+                    }
                 } break;
             }
         }
@@ -86,14 +118,15 @@ PlayerController::DrawGUI()
 
     if (_selected) {
 
-        if (_selectedAction == ActionType::Move)
-            Engine.Screen.DrawRectangle(
-              Rectangle::FromCorner({ 60, 60 }, 120, 60), Colors::Green);
-        else
-            Engine.Screen.DrawRectangle(
-              Rectangle::FromCorner({ 60, 60 }, 120, 60), Colors::Red);
+        for (auto &button : _availableActions) {
+            vec4 color = Colors::Red;
+            if (_selectedAction == &button)
+                color = Colors::Green;
 
-        Engine.Screen.RenderText("Move", font, { 90, 90 }, { 1, 1 },
-                                 Colors::Black);
+            Engine.Screen.DrawRectangle(button.Box, color);
+            Engine.Screen.RenderText(button.Name, font, 
+                { button.Box.X - button.Box.HalfWidth/2 , button.Box.Y }, 
+                { 1, 1 }, Colors::Black);
+        }
     }
 }

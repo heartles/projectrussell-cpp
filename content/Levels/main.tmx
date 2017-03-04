@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="32" height="18" tilewidth="16" tileheight="16" nextobjectid="5">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="32" height="18" tilewidth="16" tileheight="16" nextobjectid="6">
  <tileset firstgid="1" name="roguelikeCity" tilewidth="16" tileheight="16" spacing="1" tilecount="1036" columns="37">
   <properties>
    <property name="type" value="tilemap"/>
@@ -63,7 +63,8 @@
 </data>
  </layer>
  <objectgroup name="Objs">
-  <object id="1" name="Player" type="player" gid="3074" x="96" y="96" width="16" height="16"/>
+  <object id="1" name="Player" type="unit" gid="3074" x="96" y="96" width="16" height="16"/>
   <object id="3" name="View" type="View" x="0" y="0" width="512" height="288"/>
+  <object id="5" name="enemy" type="unit" gid="3074" x="243.5" y="102.5" width="16" height="16"/>
  </objectgroup>
 </map>

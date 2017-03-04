@@ -11,7 +11,8 @@ struct Unit
 enum class ActionType
 {
     None = 0,
-    Move
+    Move,
+    Attack
 };
 
 struct Game;

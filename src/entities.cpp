@@ -8,7 +8,7 @@
 #include "game.h"
 
 ObjectCreationMap ObjectCreator{
-    { "player",
+    { "unit",
       [](Game& Engine, Level* level, const EntityDesc& obj) {
           Engine.Units.push_back(Unit{
             level->GetTilesetFromGID(obj.TileGID)->SpriteFromGID(obj.TileGID),
