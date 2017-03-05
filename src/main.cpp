@@ -32,6 +32,7 @@ GetGameRootDir()
     std::string result = path;
     Log(result);
 
+    free(path);
     return result;
 }
 
