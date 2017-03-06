@@ -44,8 +44,22 @@ void
 EnqueueOrder(Unit* u, Order* o)
 {
     Order** valToSet = &u->Orders;
+    Order* prevOrder = nullptr;
     while (*valToSet) {
+        prevOrder = *valToSet;
         valToSet = &(*valToSet)->Next;
+    }
+
+    if (!prevOrder) {
+        o->Mirage = Mirage{ u->Spr, u->TilePos, u };
+    } else {
+        o->Mirage = prevOrder->Mirage;
+    }
+
+    switch (o->Type) {
+        case ActionType::Move: {
+            o->Mirage.TilePos = o->TilePos;
+        } break;
     }
 
     *valToSet = o;
@@ -161,6 +175,14 @@ PlayerController::DrawGUI()
               button.Name, font,
               { button.Box.X - button.Box.HalfWidth / 2, button.Box.Y },
               { 1, 1 }, Colors::Black);
+        }
+
+        const Order * const *orders = &_selected->Orders;
+        while (*orders) {
+            const Order& o = **orders;
+
+            DrawMirage(&Engine, o.Mirage);
+            orders = &o.Next;
         }
     }
 }

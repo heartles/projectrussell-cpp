@@ -13,10 +13,19 @@ enum class ActionType
 };
 
 struct Unit;
+struct Mirage
+{
+    Sprite Spr;
+    ivec2 TilePos;
+
+    Unit *Original;
+};
+
 struct Order
 {
     ActionType Type = ActionType::None;
     Order* Next = nullptr;
+    Mirage Mirage;
 
     union
     {
@@ -39,4 +48,5 @@ struct Unit
 
 struct Game;
 void DrawUnit(Game* engine, const Unit& unit);
+void DrawMirage(Game* engine, const Mirage &mirage);
 vec2 GetTileCenter(const ivec2& v);
