@@ -142,8 +142,8 @@ struct ivec2
     {
     }
 
-    ivec2() = default;
-    ivec2(const ivec2&) = default;
+    constexpr ivec2() = default;
+    constexpr ivec2(const ivec2&) = default;
     ivec2(ivec2&&) = default;
     ivec2& operator=(const ivec2&) = default;
     ivec2& operator=(ivec2&&) = default;
