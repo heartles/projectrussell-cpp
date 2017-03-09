@@ -8,7 +8,6 @@
 
 #include <ft2build.h>
 #include <glad/glad.h>
-#include <glm/glm.hpp>
 #include FT_FREETYPE_H
 
 #include "math.h"
@@ -104,7 +103,7 @@ class Font
     {
     }
 
-    void RenderText(std::string, glm::mat3 matrix, vec4 color) const;
+    void RenderText(std::string, mat3 matrix, vec4 color) const;
 };
 
 struct Game;
@@ -115,7 +114,7 @@ struct OrthoView : public Rectangle
   public:
     Rectangle Viewport = { 0, 0, 1, 1 };
 
-    inline glm::mat3 Matrix() const
+    inline mat3 Matrix() const
     {
         return Translate({ Viewport.X, Viewport.Y }) *
                Scale({ Viewport.Width(), Viewport.Height() }) *
@@ -261,10 +260,10 @@ struct Tileset
 
 Texture DEBUG_LoadTexture(std::string filename);
 
-void SetUniform(std::string name, const glm::mat3& value);
+void SetUniform(std::string name, const mat3& value);
 void SetUniform(std::string name, const vec4& value);
 
-void DEBUG_DrawTexture(const Texture* tex, glm::mat3 projection,
+void DEBUG_DrawTexture(const Texture* tex, mat3 projection,
                        Rectangle texPart, vec4 color);
 
 Font DEBUG_LoadFont(std::string filename, int pxSize, const Shader* s);

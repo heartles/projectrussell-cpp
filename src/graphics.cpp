@@ -3,8 +3,6 @@
 #include <array>
 #include <exception>
 
-#include <glm/gtc/matrix_transform.hpp>
-
 #include "common.h"
 #include "content.h"
 #include "game.h"
@@ -92,7 +90,7 @@ const std::array<const vec2, 4> uvFullImage{ {
 } };
 
 void
-Font::RenderText(std::string text, glm::mat3 matrix, vec4 color) const
+Font::RenderText(std::string text, mat3 matrix, vec4 color) const
 {
     _shader->Apply();
     vec2 pos = {};
@@ -104,7 +102,7 @@ Font::RenderText(std::string text, glm::mat3 matrix, vec4 color) const
 
         vec2 wh = { float(ch.Texture->Width), float(ch.Texture->Height) };
 
-        glm::mat3 screenToHUD =
+        mat3 screenToHUD =
           matrix * Translate(chPos) * Translate(wh / 2) * Scale(wh); /**/
 
         glUniform3f(glGetUniformLocation(_shader->_program, "textColor"),
@@ -223,14 +221,7 @@ getUniformLocation(std::string name)
 }
 
 void
-SetUniform(std::string name, const glm::vec4& color)
-{
-    auto loc = getUniformLocation(name);
-    glUniform4f(loc, color.r, color.g, color.b, color.a);
-}
-
-void
-SetUniform(std::string name, const glm::mat3& value)
+SetUniform(std::string name, const mat3& value)
 {
     auto loc = getUniformLocation(name);
     glUniformMatrix3fv(loc, 1, GL_FALSE, (GLfloat*)&value);
@@ -244,7 +235,7 @@ SetUniform(std::string name, const vec4& value)
 }
 
 void
-DEBUG_DrawTexture(const Texture* tex, glm::mat3 projection, Rectangle texPart,
+DEBUG_DrawTexture(const Texture* tex, mat3 projection, Rectangle texPart,
                   vec4 color)
 {
     if (locationBuffer == 0 || uvBuffer == 0) {
@@ -273,8 +264,7 @@ DEBUG_DrawTexture(const Texture* tex, glm::mat3 projection, Rectangle texPart,
 
     GLint shader;
     glGetIntegerv(GL_CURRENT_PROGRAM, &shader);
-    glUniformMatrix3fv(glGetUniformLocation(shader, "projection"), 1, GL_FALSE,
-                       reinterpret_cast<GLfloat*>(&projection));
+    SetUniform("projection", projection);
     glUniform4f(glGetUniformLocation(shader, "color"), color.r, color.g,
                 color.b, color.a);
 
@@ -322,11 +312,11 @@ OrthoView::DrawRectangle(Rectangle rect, vec4 color)
         { maxX, maxY, 1 }, // top right
     };
 
-    glm::vec3 testcoords[4] = {
-        Matrix() * glm::vec3{ minX, maxY, 1 }, // Bottom left
-        Matrix() * glm::vec3{ maxX, maxY, 1 }, // Bottom right
-        Matrix() * glm::vec3{ minX, minY, 1 }, // top left
-        Matrix() * glm::vec3{ maxX, minY, 1 }, // top right
+    vec3 testcoords[4] = {
+        Matrix() * vec3{ minX, maxY, 1 }, // Bottom left
+        Matrix() * vec3{ maxX, maxY, 1 }, // Bottom right
+        Matrix() * vec3{ minX, minY, 1 }, // top left
+        Matrix() * vec3{ maxX, minY, 1 }, // top right
     };
 
     glBindVertexArray(rectVertArray);
@@ -345,7 +335,7 @@ vec2
 OrthoView::WorldToViewport(const vec2& point) const
 {
     // todo: remove glm matrix dependencies
-    glm::vec3 p{ point.x, point.y, 1 };
+    vec3 p{ point.x, point.y, 1 };
 
     auto ret = Matrix() * p;
 
@@ -356,9 +346,9 @@ vec2
 OrthoView::ViewportToWorld(const vec2& point) const
 {
     // todo: remove glm matrix dependencies
-    glm::vec3 p{ point.x, point.y, 1 };
+    vec3 p{ point.x, point.y, 1 };
 
-    auto ret = glm::inverse(Matrix()) * p;
+    auto ret = Matrix().Inverse() * p;
 
     return { ret.x, ret.y };
 }

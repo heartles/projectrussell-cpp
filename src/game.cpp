@@ -6,7 +6,6 @@
 #include <iostream>
 
 #include <GLFW/glfw3.h>
-#include <glm/common.hpp>
 #include <json/json.h>
 
 #include "content.h"
@@ -274,7 +273,7 @@ Game_Render(Game& info)
 
     shader->Apply();
 
-    glm::mat3 viewMat = // Identity<mat3>();
+    mat3 viewMat = // Identity<mat3>();
       Scale({ 2 / info.View.Width(), 2 / info.View.Height() }) *
       Translate({ -info.View.X, -info.View.Y });
 

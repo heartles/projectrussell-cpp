@@ -6,8 +6,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
-
-#include <glm/glm.hpp>
+#include "math.h"
 
 #define internal_function static
 #define internal_variable static

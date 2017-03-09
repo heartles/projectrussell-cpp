@@ -6,8 +6,6 @@
 #include <typeinfo>
 
 #include "GLFW/glfw3.h"
-#include "glm/glm.hpp"
-#include "glm/gtx/transform.hpp"
 
 #include "common.h"
 #include "game.h"
