@@ -4,50 +4,20 @@
 #include "game.h"
 #include <cstdio>
 #include <cstdlib>
+#include <fstream>
 #include <glad/glad.h>
 #include <stb/image.h>
 #include <string>
 
-size_t
-GetFileSize(std::FILE* file)
-{
-    auto save = std::ftell(file);
-
-    std::fseek(file, 0, SEEK_END);
-    auto ret = std::ftell(file);
-
-    std::fseek(file, save, SEEK_SET);
-
-    return ret;
-}
-
 std::string
-ReadAllText(const std::string& filename)
+ReadAllText(const std::string &filename)
 {
-    Log(filename);
-    auto file = std::fopen(filename.c_str(), "rb");
-    if (!file) {
-        // TODO
-        Log("error reading file " + filename);
-        std::exit(-1);
-    }
+    std::stringstream buf{};
 
-    size_t fileSize = GetFileSize(file);
-    auto buf = new char[fileSize + 1];
+    std::ifstream file{ filename };
+    buf << file.rdbuf();
 
-    auto res = std::fread(buf, 1, fileSize, file);
-    if (res != fileSize) {
-        Log("error reading file " + filename);
-        std::exit(-1);
-    }
-
-    // Add our null terminated byte
-    buf[fileSize] = 0;
-
-    std::fclose(file);
-    std::string str = buf;
-    delete[] buf;
-    return str;
+    return buf.str();
 }
 
 ContentManager::ContentManager(const std::string &dataDir)
@@ -57,13 +27,14 @@ ContentManager::ContentManager(const std::string &dataDir)
       LoadShader("/content/text.gl.vert", "/content/text.gl.frag");
 }
 
-std::string ContentManager::ResolvePath(std::string path) const
+std::string
+ContentManager::ResolvePath(const std::string &path) const
 {
     return _dataDir + path;
 }
 
-const Shader*
-ContentManager::LoadShader(std::string vp, std::string fp)
+const Shader *
+ContentManager::LoadShader(const std::string &vp, const std::string &fp)
 {
     std::string vertPath = _dataDir + vp, fragPath = _dataDir + fp;
     if (_shaders.count({ vertPath, fragPath })) {
@@ -76,8 +47,8 @@ ContentManager::LoadShader(std::string vp, std::string fp)
     return &_shaders[{ vertPath, fragPath }];
 }
 
-const Texture*
-ContentManager::LoadTexture(std::string f)
+const Texture *
+ContentManager::LoadTexture(const std::string &f)
 {
     std::string filename = _dataDir + f;
 
@@ -90,8 +61,8 @@ ContentManager::LoadTexture(std::string f)
     return &_textures[filename];
 }
 
-const Font*
-ContentManager::LoadFont(std::string f, int pxSize, const Shader* shader)
+const Font *
+ContentManager::LoadFont(const std::string &f, int pxSize, const Shader *shader)
 {
     if (shader == nullptr) {
         shader = _defaultFontShader;

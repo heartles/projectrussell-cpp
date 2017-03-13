@@ -18,7 +18,7 @@ DEBUG_LoadShader(std::string vertPath, std::string fragPath)
     Shader s{ v, f };
 
     auto vert = ReadAllText(vertPath);
-    char const* vertPtr = vert.c_str();
+    char const *vertPtr = vert.c_str();
     glShaderSource(s._vertShader, 1, &vertPtr, nullptr);
 
     glCompileShader(s._vertShader);
@@ -29,26 +29,26 @@ DEBUG_LoadShader(std::string vertPath, std::string fragPath)
         glGetShaderiv(s._vertShader, GL_INFO_LOG_LENGTH, &maxLength);
         if (maxLength) {
             std::vector<GLchar> infoLog(static_cast<int>(maxLength));
-            glGetShaderInfoLog(s._vertShader, maxLength, &maxLength,
-                               infoLog.data());
+            glGetShaderInfoLog(
+              s._vertShader, maxLength, &maxLength, infoLog.data());
 
             Log(reinterpret_cast<char *>(infoLog.data()));
         }
     }
 
     auto frag = ReadAllText(fragPath);
-    char const* fragPtr = frag.c_str();
+    char const *fragPtr = frag.c_str();
     glShaderSource(s._fragShader, 1, &fragPtr, nullptr);
 
     glCompileShader(s._fragShader);
-    glGetShaderiv(s._fragShader, GL_COMPILE_STATUS, (GLint*)&success);
+    glGetShaderiv(s._fragShader, GL_COMPILE_STATUS, (GLint *)&success);
     if (!success) {
         GLint maxLength;
         glGetShaderiv(s._fragShader, GL_INFO_LOG_LENGTH, &maxLength);
         if (maxLength) {
             std::vector<GLchar> infoLog(static_cast<int>(maxLength));
-            glGetShaderInfoLog(s._fragShader, maxLength, &maxLength,
-                               infoLog.data());
+            glGetShaderInfoLog(
+              s._fragShader, maxLength, &maxLength, infoLog.data());
 
             Log(reinterpret_cast<char *>(infoLog.data()));
         }

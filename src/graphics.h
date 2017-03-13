@@ -14,11 +14,11 @@
 #include "shader.h"
 
 namespace Colors {
-const vec4 Black = { 0, 0, 0, 1 };
-const vec4 White = { 1, 1, 1, 1 };
-const vec4 Red = { 1, 0, 0, 1 };
-const vec4 Green = { 0, 1, 0, 1 };
-const vec4 Blue = { 0, 0, 1, 1 };
+    const vec4 Black = { 0, 0, 0, 1 };
+    const vec4 White = { 1, 1, 1, 1 };
+    const vec4 Red = { 1, 0, 0, 1 };
+    const vec4 Green = { 0, 1, 0, 1 };
+    const vec4 Blue = { 0, 0, 1, 1 };
 };
 
 struct Rectangle
@@ -36,13 +36,13 @@ struct Rectangle
 
     inline vec2 Dim() const { return { HalfWidth * 2, HalfHeight * 2 }; }
 
-    inline bool Intersects(const Rectangle& other) const
+    inline bool Intersects(const Rectangle &other) const
     {
         return Min().x < other.Max().x && Max().x > other.Min().x &&
                Min().y < other.Max().y && Max().y > other.Min().y;
     }
 
-    inline bool Contains(const vec2& point) const
+    inline bool Contains(const vec2 &point) const
     {
         return point.x < Max().x && point.x > Min().x && point.y < Max().y &&
                point.y > Min().y;
@@ -65,7 +65,7 @@ const struct Rectangle FullImage = Rectangle::FromCorner({ 0.0f, 0.0f }, 1, 1);
 struct Texture;
 struct Sprite
 {
-    const Texture* Tex;
+    const Texture *Tex;
     Rectangle Part;
 };
 
@@ -84,7 +84,7 @@ struct Texture
 
 struct Character
 {
-    const Texture* Texture;
+    const Texture *Texture;
     ivec2 Offset;  // Offset from origin to left/top of char
     ivec2 Advance; // Offset to next char/line
 };
@@ -92,12 +92,12 @@ struct Character
 class Font
 {
     std::map<uint64_t, Character> _codepoints;
-    const Shader* _shader;
+    const Shader *_shader;
 
   public:
     inline Font() {}
 
-    inline Font(std::map<uint64_t, Character>&& p, const Shader* s)
+    inline Font(std::map<uint64_t, Character> &&p, const Shader *s)
       : _codepoints(p)
       , _shader(s)
     {
@@ -109,7 +109,7 @@ class Font
 struct Game;
 struct OrthoView : public Rectangle
 {
-    Game* Engine;
+    Game *Engine;
 
   public:
     Rectangle Viewport = { 0, 0, 1, 1 };
@@ -121,33 +121,40 @@ struct OrthoView : public Rectangle
                Scale({ 1 / Width(), 1 / Height() }) * Translate({ -X, -Y });
     }
 
-    inline OrthoView(const Rectangle& r, Game* e)
+    inline OrthoView(const Rectangle &r, Game *e)
       : Engine(e)
     {
-        *static_cast<Rectangle*>(this) = r;
+        *static_cast<Rectangle *>(this) = r;
     }
 
     inline OrthoView() = default;
 
-    void DrawTexturePart(const Texture* tex, vec2 pos, Rectangle texPart,
-                         vec2 scale, float rotation, vec4 color);
+    void DrawTexturePart(const Texture *tex,
+                         vec2 pos,
+                         Rectangle texPart,
+                         vec2 scale,
+                         float rotation,
+                         vec4 color);
 
-    inline void DrawTexturePart(const Texture* tex, vec2 pos, Rectangle texPart)
+    inline void DrawTexturePart(const Texture *tex, vec2 pos, Rectangle texPart)
     {
         DrawTexturePart(tex, pos, texPart, { 1, 1 }, 0, Colors::White);
     }
 
-    inline void DrawTexture(const Texture* tex, vec2 pos)
+    inline void DrawTexture(const Texture *tex, vec2 pos)
     {
         DrawTexturePart(tex, pos, FullImage);
     }
 
-    inline void DrawTexture(const Texture* tex, vec2 pos, float rot)
+    inline void DrawTexture(const Texture *tex, vec2 pos, float rot)
     {
         DrawTexturePart(tex, pos, FullImage, { 1, 1 }, rot, Colors::White);
     }
 
-    inline void DrawSprite(Sprite spr, vec2 pos, float rot, vec2 scale,
+    inline void DrawSprite(Sprite spr,
+                           vec2 pos,
+                           float rot,
+                           vec2 scale,
                            vec4 color)
     {
         DrawTexturePart(spr.Tex, pos, spr.Part, scale, rot, color);
@@ -155,11 +162,14 @@ struct OrthoView : public Rectangle
 
     void DrawRectangle(Rectangle coords, vec4 color);
 
-    void RenderText(std::string text, const Font* f, vec2 pos, vec2 scale,
+    void RenderText(std::string text,
+                    const Font *f,
+                    vec2 pos,
+                    vec2 scale,
                     vec4 color);
 
-    vec2 WorldToViewport(const vec2& val) const;
-    vec2 ViewportToWorld(const vec2& val) const;
+    vec2 WorldToViewport(const vec2 &val) const;
+    vec2 ViewportToWorld(const vec2 &val) const;
 };
 
 struct View
@@ -175,7 +185,7 @@ struct Tileset
     int ImageWidth, ImageHeight;
     int TileCountTotal, FirstTileID;
     int Spacing, Margin;
-    const Texture* Image;
+    const Texture *Image;
 
     std::vector<vec2> Texcoords;
     std::vector<vec3> Positions;
@@ -188,7 +198,7 @@ struct Tileset
         return TopLeftFromID(gid - FirstTileID);
     }
 
-    inline std::array<vec2, 4>&& CornerCoordsFromID(int id)
+    inline std::array<vec2, 4> &&CornerCoordsFromID(int id)
     {
         int tileX = id % TileCountX;
         int spacingOffsetX = Spacing * tileX;
@@ -236,9 +246,10 @@ struct Tileset
     {
         vec2 tl = TopLeftFromID(id);
 
-        return Rectangle::FromCorner(
-          tl, static_cast<float>(TileWidth) / ImageWidth,
-          static_cast<float>(TileHeight) / ImageHeight);
+        return Rectangle::FromCorner(tl,
+                                     static_cast<float>(TileWidth) / ImageWidth,
+                                     static_cast<float>(TileHeight) /
+                                       ImageHeight);
     }
 
     inline Sprite SpriteFromGID(int gid)
@@ -252,18 +263,21 @@ struct Tileset
         auto id = gid - FirstTileID;
         vec2 tl = TopLeftFromID(id);
 
-        return Rectangle::FromCorner(
-          tl, static_cast<float>(TileWidth) / ImageWidth,
-          static_cast<float>(TileHeight) / ImageHeight);
+        return Rectangle::FromCorner(tl,
+                                     static_cast<float>(TileWidth) / ImageWidth,
+                                     static_cast<float>(TileHeight) /
+                                       ImageHeight);
     }
 };
 
 Texture DEBUG_LoadTexture(std::string filename);
 
-void SetUniform(std::string name, const mat3& value);
-void SetUniform(std::string name, const vec4& value);
+void SetUniform(std::string name, const mat3 &value);
+void SetUniform(std::string name, const vec4 &value);
 
-void DEBUG_DrawTexture(const Texture* tex, mat3 projection,
-                       Rectangle texPart, vec4 color);
+void DEBUG_DrawTexture(const Texture *tex,
+                       mat3 projection,
+                       Rectangle texPart,
+                       vec4 color);
 
-Font DEBUG_LoadFont(std::string filename, int pxSize, const Shader* s);
+Font DEBUG_LoadFont(std::string filename, int pxSize, const Shader *s);

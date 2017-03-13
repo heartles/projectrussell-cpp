@@ -26,8 +26,9 @@ static_assert(sizeof(float) == sizeof(GLfloat), "float != GLfloat");
 string
 GetGameRootDir()
 {
-    char* path = getcwd(nullptr, 32);
-    std::string result = (path ? path : throw std::exception("getcwd returned nullptr"));
+    char *path = getcwd(nullptr, 32);
+    std::string result =
+      (path ? path : throw std::exception("getcwd returned nullptr"));
     Log(result);
 
     free(path);
@@ -35,7 +36,7 @@ GetGameRootDir()
 }
 
 int
-main(int argc, char** argv)
+main(int argc, char **argv)
 {
     for (int i = 0; i < argc; i++) {
         Args.push_back(std::string(argv[i]));
@@ -59,8 +60,8 @@ main(int argc, char** argv)
 
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-        GLFWwindow* window = glfwCreateWindow(mode->width, mode->height,
-                                              "Unnamed RPG", nullptr, nullptr);
+        GLFWwindow *window = glfwCreateWindow(
+          mode->width, mode->height, "Unnamed RPG", nullptr, nullptr);
         if (!window) {
             Log("Could not create window");
             glfwTerminate();
@@ -111,8 +112,8 @@ main(int argc, char** argv)
 
             Game_Update(g);
 
-            glClearColor(g.ClearColor.r, g.ClearColor.g, g.ClearColor.b,
-                         g.ClearColor.a);
+            glClearColor(
+              g.ClearColor.r, g.ClearColor.g, g.ClearColor.b, g.ClearColor.a);
             glClear(GL_COLOR_BUFFER_BIT);
             Game_Render(g);
 
@@ -127,7 +128,8 @@ main(int argc, char** argv)
             if (fps < 59) {
 
                 std::printf("Missed a frame! Game loop iteration %d, %f fps\n",
-                            DEBUG_loop, fps);
+                            DEBUG_loop,
+                            fps);
             }
 
             // std::printf("FPS: %f\n", fps);

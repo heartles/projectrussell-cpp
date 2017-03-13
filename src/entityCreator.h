@@ -15,6 +15,6 @@ struct EntityDesc
 };
 
 using ObjectCreationMap =
-  const std::map<std::string, void (*)(Game&, Level*, const EntityDesc&)>;
+  const std::map<std::string, void (*)(Game &, Level *, const EntityDesc &)>;
 
 extern ObjectCreationMap ObjectCreator;

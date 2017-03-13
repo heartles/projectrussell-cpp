@@ -16,18 +16,18 @@ struct ActionButton
     Rectangle Box = { 0 };
 };
 
-class PlayerController
-    : public Updateable, public GUIRenderable
+class PlayerController : public Updateable, public Renderable
 {
-    Unit* _selected = nullptr;
+    Unit *_selected = nullptr;
 
-    ActionButton* _selectedAction = nullptr;
+    ActionButton *_selectedAction = nullptr;
     std::vector<ActionButton> _availableActions{ 8 };
 
-    void selectUnit(Unit* u);
-    void deselectUnit(Unit* u);
+    void selectUnit(Unit *u);
+    void deselectUnit(Unit *u);
 
   public:
-      virtual void Update(Game &) override;
-      virtual void DrawGUI(Game &) override;
+    virtual void Update(Game &) override;
+    virtual void Draw(Game &) override;
+    virtual RenderOrder RequestedDrawOrder() override;
 };

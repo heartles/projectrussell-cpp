@@ -135,7 +135,6 @@
       <Optimization>Disabled</Optimization>
       <LanguageStandard>stdcpp14</LanguageStandard>
       <UndefinePreprocessorDefinitions>%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <ForcedIncludeFiles>
       </ForcedIncludeFiles>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -169,7 +168,6 @@
       <Optimization>Disabled</Optimization>
       <LanguageStandard>stdcpp14</LanguageStandard>
       <UndefinePreprocessorDefinitions>%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <ForcedIncludeFiles>
       </ForcedIncludeFiles>
       <EnablePREfast>true</EnablePREfast>
@@ -239,7 +237,6 @@
       <AdditionalIncludeDirectories>vendor</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp14</LanguageStandard>
       <UndefinePreprocessorDefinitions>%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <ForcedIncludeFiles>
       </ForcedIncludeFiles>
       <WarningLevel>Level3</WarningLevel>
@@ -268,7 +265,6 @@
       <AdditionalIncludeDirectories>vendor</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp14</LanguageStandard>
       <UndefinePreprocessorDefinitions>%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <ForcedIncludeFiles>
       </ForcedIncludeFiles>
       <WarningLevel>Level3</WarningLevel>
@@ -330,7 +326,7 @@
     <ClCompile Include="src\content.cpp" />
     <ClCompile Include="src\game\unit.cpp" />
     <ClCompile Include="src\game.cpp" />
-    <ClCompile Include="src\game\unitRenderer.cpp" />
+    <ClCompile Include="src\game\basicRenderers.cpp" />
     <ClCompile Include="src\graphics.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\math.cpp" />
@@ -360,7 +356,7 @@
   <ItemGroup>
     <ClInclude Include="src\common.h" />
     <ClInclude Include="src\content.h" />
-    <ClInclude Include="src\game\unitRenderer.h" />
+    <ClInclude Include="src\game\basicRenderers.h" />
     <ClInclude Include="src\game\unit.h" />
     <ClInclude Include="src\entityCreator.h" />
     <ClInclude Include="src\game.h" />

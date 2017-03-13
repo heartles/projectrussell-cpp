@@ -9,20 +9,18 @@
 #include "graphics.h"
 #include "shader.h"
 
-std::string ReadAllText(const std::string& filename);
-
-size_t GetFileSize(std::FILE* file);
+std::string ReadAllText(const std::string &filename);
 
 struct FontDesc
 {
     std::string Filename;
     int PxSize;
-    const Shader* Shader;
+    const Shader *Shader;
 };
 
 struct FontDescCmp
 {
-    bool operator()(const FontDesc& v1, const FontDesc& v2) const
+    bool operator()(const FontDesc &v1, const FontDesc &v2) const
     {
         return (v1.Filename != v2.Filename)
                  ? v1.Filename < v2.Filename
@@ -38,16 +36,18 @@ class ContentManager
     std::map<std::string, Texture> _textures{};
     std::map<FontDesc, Font, FontDescCmp> _fonts{};
 
-    const Shader* _defaultFontShader;
+    const Shader *_defaultFontShader;
     const std::string _dataDir;
 
   public:
-      std::string ResolvePath(std::string path) const;
+    std::string ResolvePath(const std::string &path) const;
 
     ContentManager(const std::string &dataDir);
 
-    const Shader* LoadShader(std::string vertPath, std::string fragPath);
-    const Texture* LoadTexture(std::string filename);
-    const Font* LoadFont(std::string filename, int pxSize,
-                         const Shader* s = nullptr);
+    const Shader *LoadShader(const std::string &vertPath,
+                             const std::string &fragPath);
+    const Texture *LoadTexture(const std::string &filename);
+    const Font *LoadFont(const std::string &filename,
+                         int pxSize,
+                         const Shader *s = nullptr);
 };

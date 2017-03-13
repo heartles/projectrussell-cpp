@@ -1,8 +1,8 @@
 #pragma once
 
-#include <vector>
-#include <memory>
 #include <array>
+#include <memory>
+#include <vector>
 
 template <typename T, uint32_t BUCKET_SIZE = 64>
 class Pool
@@ -27,13 +27,11 @@ class Pool
 
         bool Contains(T *val)
         {
-            return static_cast<void *>(val) > &operator[](0) && static_cast<void *>(val) < &operator[](BUCKET_SIZE-1);
+            return static_cast<void *>(val) > &operator[](0) &&
+                   static_cast<void *>(val) < &operator[](BUCKET_SIZE - 1);
         }
 
-        inst & operator[](int index)
-        {
-            return (*data)[index];
-        }
+        inst &operator[](int index) { return (*data)[index]; }
     };
 
     std::vector<bucket> _pool{};
@@ -52,26 +50,17 @@ class Pool
             _index = i;
         }
 
-    public:
-        T& operator*()
-        {
-            return _pool->_pool[_bucketIndex][_index].val;
-        }
+      public:
+        T &operator*() { return _pool->_pool[_bucketIndex][_index].val; }
 
-        operator T*()
-        {
-            return &_pool->_pool[_bucketIndex][_index].val;
-        }
+        operator T *() { return &_pool->_pool[_bucketIndex][_index].val; }
 
-        T *operator ->()
-        {
-            return operator T*();
-        }
+        T *operator->() { return operator T *(); }
 
-        it operator ++(int)
+        it operator++(int)
         {
             auto temp = *this;
-            
+
             do {
                 _index++;
                 if (_index >= BUCKET_SIZE) {
@@ -79,12 +68,12 @@ class Pool
                     _bucketIndex++;
                 }
             } while (_bucketIndex < _pool->_pool.size() &&
-                !_pool->_pool[_bucketIndex][_index].inUse);
-            
+                     !_pool->_pool[_bucketIndex][_index].inUse);
+
             return temp;
         }
-        
-        it & operator ++()
+
+        it &operator++()
         {
             do {
                 _index++;
@@ -92,28 +81,24 @@ class Pool
                     _index = 0;
                     _bucketIndex++;
                 }
-            } while (_bucketIndex < _pool->_pool.size()
-                && !_pool->_pool[_bucketIndex][_index].inUse);
+            } while (_bucketIndex < _pool->_pool.size() &&
+                     !_pool->_pool[_bucketIndex][_index].inUse);
 
             return *this;
         }
 
-        bool operator ==(const it& other)
+        bool operator==(const it &other)
         {
-            return _pool == other._pool &&
-                _bucketIndex == other._bucketIndex &&
-                _index == other._index;
+            return _pool == other._pool && _bucketIndex == other._bucketIndex &&
+                   _index == other._index;
         }
 
-        bool operator !=(const it& other)
-        {
-            return !(*this == other);
-        }
+        bool operator!=(const it &other) { return !(*this == other); }
     };
 
-    void Free(T* val)
+    void Free(T *val)
     {
-        for (auto& b : _pool) {
+        for (auto &b : _pool) {
 
             if (b.Contains(val)) {
                 b.free++;
@@ -129,12 +114,12 @@ class Pool
         }
     }
 
-    T* Allocate()
+    T *Allocate()
     {
-        for (bucket& b : _pool) {
+        for (bucket &b : _pool) {
             if (b.free > 0) {
                 b.free--;
-                
+
                 for (int i = 0; i < BUCKET_SIZE; i++) {
                     if (!b[i].inUse) {
                         b[i].inUse = true;
@@ -151,13 +136,7 @@ class Pool
         return &_pool[_pool.size() - 1][0].val;
     }
 
-    it begin()
-    {
-        return it{ this, 0, 0 };
-    }
+    it begin() { return it{ this, 0, 0 }; }
 
-    it end()
-    {
-        return it{ this, static_cast<int>(_pool.size()), 0 };
-    }
+    it end() { return it{ this, static_cast<int>(_pool.size()), 0 }; }
 };

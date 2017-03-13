@@ -8,7 +8,7 @@
 #include <GLFW/glfw3.h>
 
 ivec2
-GetTilePos(const Game& engine, vec2 screen)
+GetTilePos(const Game &engine, vec2 screen)
 {
     auto game = engine.View.ViewportToWorld(screen);
     return { static_cast<int>(game.x), static_cast<int>(game.y) };
@@ -21,19 +21,21 @@ TilePosToFloat(ivec2 tile)
 }
 
 void
-PlayerController::selectUnit(Unit* u)
+PlayerController::selectUnit(Unit *u)
 {
     _selected = u;
     _selectedAction = nullptr;
     _availableActions.assign(
-      { { ActionType::Move, "Move",
+      { { ActionType::Move,
+          "Move",
           Rectangle::FromCorner({ 60, 60 }, 120, 60) },
-        { ActionType::Attack, "Attack",
+        { ActionType::Attack,
+          "Attack",
           Rectangle::FromCorner({ 200, 60 }, 120, 60) } });
 }
 
 void
-PlayerController::deselectUnit(Unit* u)
+PlayerController::deselectUnit(Unit *u)
 {
     _selected = nullptr;
     _selectedAction = nullptr;
@@ -41,10 +43,10 @@ PlayerController::deselectUnit(Unit* u)
 }
 
 void
-EnqueueOrder(Unit* u, Order* o)
+EnqueueOrder(Unit *u, Order *o)
 {
-    Order** valToSet = &u->Orders;
-    Order* prevOrder = nullptr;
+    Order **valToSet = &u->Orders;
+    Order *prevOrder = nullptr;
     while (*valToSet) {
         prevOrder = *valToSet;
         valToSet = &(*valToSet)->Next;
@@ -74,7 +76,7 @@ PlayerController::Update(Game &Engine)
     if (Engine.MousePressed(0)) {
         bool clickedOnUnit = false;
         if (!_selectedAction || _selectedAction->Type == ActionType::None) {
-            for (auto& u : Engine.Level.Units) {
+            for (auto &u : Engine.Level.Units) {
                 if (u.TilePos == mousePos) {
                     if (&u != _selected) {
                         selectUnit(&u);
@@ -91,7 +93,7 @@ PlayerController::Update(Game &Engine)
         const vec2 screenMousePos = Engine.Screen.ViewportToWorld(
           { Engine.Input.MouseX, Engine.Input.MouseY });
         if (_selected) {
-            for (auto& button : _availableActions) {
+            for (auto &button : _availableActions) {
                 if (button.Box.Contains(screenMousePos)) {
                     if (_selectedAction == &button) {
                         _selectedAction = nullptr;
@@ -106,7 +108,7 @@ PlayerController::Update(Game &Engine)
 
         if (!clickedOnButton && !clickedOnUnit) {
             const auto endTurnButton =
-                Rectangle::FromCorner({ 1920 - 180, 60 }, 150, 60);
+              Rectangle::FromCorner({ 1920 - 180, 60 }, 150, 60);
             if (endTurnButton.Contains(screenMousePos)) {
                 ProcessTurn(Engine);
                 return;
@@ -114,29 +116,29 @@ PlayerController::Update(Game &Engine)
 
             if (_selectedAction) {
                 switch (_selectedAction->Type) {
-                case ActionType::Move: {
-                    Order* order = Engine.Level.Orders.Allocate();
-                    order->Type = ActionType::Move;
-                    order->TilePos = mousePos;
-                    EnqueueOrder(_selected, order);
-                } break;
-                case ActionType::Attack: {
-                    for (auto& u : Engine.Level.Units) {
-                        if (u.TilePos == mousePos) {
-                            Order* order = Engine.Level.Orders.Allocate();
-                            order->Type = ActionType::Attack;
-                            order->Other = &u;
-                            EnqueueOrder(_selected, order);
+                    case ActionType::Move: {
+                        Order *order = Engine.Level.Orders.Allocate();
+                        order->Type = ActionType::Move;
+                        order->TilePos = mousePos;
+                        EnqueueOrder(_selected, order);
+                    } break;
+                    case ActionType::Attack: {
+                        for (auto &u : Engine.Level.Units) {
+                            if (u.TilePos == mousePos) {
+                                Order *order = Engine.Level.Orders.Allocate();
+                                order->Type = ActionType::Attack;
+                                order->Other = &u;
+                                EnqueueOrder(_selected, order);
+                            }
                         }
-                    }
-                } break;
+                    } break;
                 }
             }
         }
     }
 
     if (Engine.MousePressed(1) && _selected) {
-        Order* order = Engine.Level.Orders.Allocate();
+        Order *order = Engine.Level.Orders.Allocate();
         order->Type = ActionType::Move;
         order->TilePos = mousePos;
         EnqueueOrder(_selected, order);
@@ -144,14 +146,14 @@ PlayerController::Update(Game &Engine)
 }
 
 void
-PlayerController::DrawGUI(Game &Engine)
+PlayerController::Draw(Game &Engine)
 {
     if (_selected) {
         auto spr =
           Engine.Content.LoadTexture("/content/selected.png")->Sprite();
 
-        Engine.View.DrawSprite(spr, GetTileCenter(_selected->TilePos), 0,
-                               { 1, 1 }, Colors::White);
+        Engine.View.DrawSprite(
+          spr, GetTileCenter(_selected->TilePos), 0, { 1, 1 }, Colors::White);
     }
 
     Engine.Screen.DrawRectangle(Rectangle::FromCorner({ 0, 0 }, 1920, 180),
@@ -161,26 +163,28 @@ PlayerController::DrawGUI(Game &Engine)
 
     Engine.Screen.DrawRectangle(
       Rectangle::FromCorner({ 1920 - 150, 60 }, 120, 60), Colors::Green);
-    Engine.Screen.RenderText("End Turn", font, { 1920 - 150, 90 }, { 1, 1 },
-                             Colors::Black);
+    Engine.Screen.RenderText(
+      "End Turn", font, { 1920 - 150, 90 }, { 1, 1 }, Colors::Black);
 
     if (_selected) {
 
-        for (auto& button : _availableActions) {
+        for (auto &button : _availableActions) {
             vec4 color = Colors::Red;
             if (_selectedAction == &button)
                 color = Colors::Green;
 
             Engine.Screen.DrawRectangle(button.Box, color);
             Engine.Screen.RenderText(
-              button.Name, font,
+              button.Name,
+              font,
               { button.Box.X - button.Box.HalfWidth / 2, button.Box.Y },
-              { 1, 1 }, Colors::Black);
+              { 1, 1 },
+              Colors::Black);
         }
 
-        const Order * const *orders = &_selected->Orders;
+        const Order *const *orders = &_selected->Orders;
         while (*orders) {
-            const Order& o = **orders;
+            const Order &o = **orders;
 
             DrawMirage(&Engine, o.Mirage);
             orders = &o.Next;
@@ -188,20 +192,25 @@ PlayerController::DrawGUI(Game &Engine)
     }
 }
 
+RenderOrder
+PlayerController::RequestedDrawOrder()
+{
+    return RenderOrder(10);
+}
+
 void
 ProcessTurn(Game &Engine)
 {
     Log("Processing Turn...");
-    for (auto& u : Engine.Level.Units) {
-        Order* o = u.Orders;
+    for (auto &u : Engine.Level.Units) {
+        Order *o = u.Orders;
 
         Log("\tProcessing orders for unit " + std::to_string(u.ID));
         while (o) {
             switch (o->Type) {
                 case ActionType::Move: {
-                    Log("\t\tExecuting Move from " +
-                        std::to_string(u.TilePos) + " to " +
-                        std::to_string(o->TilePos));
+                    Log("\t\tExecuting Move from " + std::to_string(u.TilePos) +
+                        " to " + std::to_string(o->TilePos));
                     u.TilePos = o->TilePos;
                 } break;
                 case ActionType::Attack: {

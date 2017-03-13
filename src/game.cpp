@@ -9,12 +9,12 @@
 #include <json/json.h>
 
 #include "content.h"
-#include "game/player.h"
 #include "entityCreator.h"
+#include "game/basicRenderers.h"
+#include "game/player.h"
 #include "graphics.h"
 #include "math.h"
 #include "shader.h"
-#include "game/unitRenderer.h"
 
 using namespace std;
 
@@ -31,12 +31,10 @@ FromPixels(Texture spr, struct Rectangle r)
 }
 
 void
-Game_Init(Game& info)
+Game_Init(Game &info)
 {
     Log("creating world");
     info.View = OrthoView(Rectangle{ 0, 0, 30 / 2, 16.875f / 2.0f }, &info);
-
-    StackAlloc alloc(1024 * 1024);
 
     info.ClearColor = Colors::White;
 
@@ -54,14 +52,14 @@ Game_Init(Game& info)
 }
 
 void
-LoadLevel(const std::string& fileLoc, Game& info)
+LoadLevel(const std::string &fileLoc, Game &info)
 {
     fstream file;
     file.open(fileLoc);
 
     Json::Value val;
     file >> val;
-    Level& level = info.Level;
+    Level &level = info.Level;
     auto tilesetsJson = val["tilesets"];
     level.Tilesets.reserve(tilesetsJson.size());
 
@@ -141,31 +139,36 @@ LoadLevel(const std::string& fileLoc, Game& info)
 
     info.Add(UnitRenderer{});
 
-    for (auto& t : level.Tilesets) {
+    for (auto &t : level.Tilesets) {
         glGenVertexArrays(1, &t.VertexArrayID);
-        GLenum err = glGetError();
+        const GLenum err = glGetError();
         glBindVertexArray(t.VertexArrayID);
 
         glGenBuffers(2, t.VertexBufferIDs);
 
         glBindBuffer(GL_ARRAY_BUFFER, t.VertexBufferIDs[0]);
-        glBufferData(GL_ARRAY_BUFFER, sizeof_vector(t.Positions),
-                     t.Positions.data(), GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER,
+                     sizeof_vector(t.Positions),
+                     t.Positions.data(),
+                     GL_STATIC_DRAW);
 
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
         glBindBuffer(GL_ARRAY_BUFFER, t.VertexBufferIDs[1]);
-        glBufferData(GL_ARRAY_BUFFER, sizeof_vector(t.Texcoords),
-                     t.Texcoords.data(), GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER,
+                     sizeof_vector(t.Texcoords),
+                     t.Texcoords.data(),
+                     GL_STATIC_DRAW);
 
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
     }
 
     info.Add(PlayerController{});
+    info.Add(TilemapRenderer{});
 }
 
 void
-ParseTileLayer(const Json::Value& layer, Level &level)
+ParseTileLayer(const Json::Value &layer, Level &level)
 {
     auto data = layer["data"];
     for (int i = 0; i < data.size(); ++i) {
@@ -176,9 +179,9 @@ ParseTileLayer(const Json::Value& layer, Level &level)
         if (tileIndex == 0)
             continue;
 
-        Tileset* tilesetPtr = nullptr;
+        Tileset *tilesetPtr = nullptr;
 
-        for (auto& t : level.Tilesets) {
+        for (auto &t : level.Tilesets) {
             if (tileIndex - t.FirstTileID >= 0 &&
                 tileIndex - t.FirstTileID - t.TileCountTotal < 0) {
                 tilesetPtr = &t;
@@ -189,7 +192,7 @@ ParseTileLayer(const Json::Value& layer, Level &level)
         if (!tilesetPtr) {
             throw std::exception("no matching tileset for tileid");
         }
-        auto& tileset = *tilesetPtr;
+        auto &tileset = *tilesetPtr;
 
         float minx = float(i % level.Width) - 0.01f;
         float maxx = float(i % level.Width + 1) + 0.01f;
@@ -221,10 +224,10 @@ ParseTileLayer(const Json::Value& layer, Level &level)
 
         auto coords = tileset.CornerCoordsFromID(tileIndex);
 
-        vec2& tl = coords[0];
-        vec2& tr = coords[1];
-        vec2& br = coords[2];
-        vec2& bl = coords[3];
+        vec2 &tl = coords[0];
+        vec2 &tr = coords[1];
+        vec2 &br = coords[2];
+        vec2 &bl = coords[3];
 
         // tri 1
         tileset.Texcoords.push_back(bl); // bottom left
@@ -239,7 +242,7 @@ ParseTileLayer(const Json::Value& layer, Level &level)
 }
 
 void
-Game_Update(Game& info)
+Game_Update(Game &info)
 {
     if (info.Input.Keyboard[GLFW_KEY_ESCAPE])
         info.ShouldClose = true;
@@ -250,42 +253,13 @@ Game_Update(Game& info)
 }
 
 void
-Game_Render(Game& info)
+Game_Render(Game &info)
 {
     glEnable(GL_BLEND);
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    auto shader = info.Content.LoadShader("/content/textured.gl.vert",
-                                          "/content/textured.gl.frag");
-
-    shader->Apply();
-
-    mat3 viewMat = // Identity<mat3>();
-      Scale({ 2 / info.View.Width(), 2 / info.View.Height() }) *
-      Translate({ -info.View.X, -info.View.Y });
-
-    for (auto& t : info.Level.Tilesets) {
-        glBindVertexArray(t.VertexArrayID);
-
-        glBindTexture(GL_TEXTURE_2D, t.Image->TextureID);
-
-        SetUniform("projection", viewMat);
-        SetUniform("color", Colors::White);
-
-        glEnableVertexAttribArray(0);
-
-        glEnableVertexAttribArray(1);
-
-        glDrawArrays(GL_TRIANGLES, 0, t.Positions.size());
-    }
-
     for (auto c : info.Renderables) {
         c->Draw(info);
     }
-    
-    for (auto c : info.GUIRenderables) {
-        c->DrawGUI(info);
-    }
-
 }

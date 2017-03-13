@@ -6,7 +6,7 @@ mat3
 Translate(vec2 amount)
 {
     mat3 output = Identity::Mat3;
-    vec3& col3 = output[2];
+    vec3 &col3 = output[2];
     col3.x = amount.x;
     col3.y = amount.y;
 

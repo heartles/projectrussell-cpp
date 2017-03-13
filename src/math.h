@@ -55,7 +55,7 @@ union vec2
     {
     }
 
-    inline float& operator[](int index)
+    inline float &operator[](int index)
     {
         assert(index < 2);
         return _arr[index];
@@ -102,14 +102,14 @@ union vec2
         return vec2{ x - other.x, y - other.y };
     }
 
-    inline vec2& operator+=(vec2 other)
+    inline vec2 &operator+=(vec2 other)
     {
         x += other.x;
         y += other.y;
         return *this;
     }
 
-    inline vec2& operator-=(vec2 other)
+    inline vec2 &operator-=(vec2 other)
     {
         x -= other.x;
         y -= other.y;
@@ -136,7 +136,7 @@ struct ivec2
         return { x * scalar, y * scalar };
     }
 
-    constexpr inline explicit ivec2(const vec2& v)
+    constexpr inline explicit ivec2(const vec2 &v)
       : x(static_cast<int>(v.x))
       , y(static_cast<int>(v.y))
     {
@@ -149,16 +149,19 @@ struct ivec2
     }
 
     constexpr ivec2() = default;
-    constexpr ivec2(const ivec2&) = default;
-    ivec2(ivec2&&) = default;
-    ivec2& operator=(const ivec2&) = default;
-    ivec2& operator=(ivec2&&) = default;
+    constexpr ivec2(const ivec2 &) = default;
+    ivec2(ivec2 &&) = default;
+    ivec2 &operator=(const ivec2 &) = default;
+    ivec2 &operator=(ivec2 &&) = default;
 
-    inline explicit operator vec2() const { return { static_cast<float>(x), static_cast<float>(y) }; }
+    inline explicit operator vec2() const
+    {
+        return { static_cast<float>(x), static_cast<float>(y) };
+    }
 };
 
 constexpr bool
-operator==(const ivec2& v1, const ivec2& v2)
+operator==(const ivec2 &v1, const ivec2 &v2)
 {
     return (v1.x == v2.x) && (v1.y == v2.y);
 }
@@ -191,7 +194,7 @@ struct vec3
         y = 0;
     }
 
-    inline float& operator[](int index)
+    inline float &operator[](int index)
     {
         assert(index < 3);
         return _arr[index];
@@ -232,14 +235,14 @@ struct vec4
         float _arr[4];
     };
 
-    inline float& operator[](int index)
+    inline float &operator[](int index)
     {
         assert(index < 2);
         return _arr[index];
     }
 };
 
-inline float 
+inline float
 Dot(vec2 v1, vec2 v2)
 {
     float sum = 0;
@@ -250,7 +253,7 @@ Dot(vec2 v1, vec2 v2)
     return sum;
 }
 
-inline float 
+inline float
 Dot(vec3 v1, vec3 v2)
 {
     float sum = 0;
@@ -261,7 +264,7 @@ Dot(vec3 v1, vec3 v2)
     return sum;
 }
 
-inline float 
+inline float
 Dot(vec4 v1, vec4 v2)
 {
     float sum = 0;
@@ -272,36 +275,31 @@ Dot(vec4 v1, vec4 v2)
     return sum;
 }
 
-inline vec3 
+inline vec3
 Cross(vec3 a, vec3 b)
 {
-    return {
-        a[1] * b[2] - a[2] * b[1],
-        a[2] * b[0] - a[0] * b[2],
-        a[0] * b[1] - a[1] * b[0]
-    };
+    return { a[1] * b[2] - a[2] * b[1],
+             a[2] * b[0] - a[0] * b[2],
+             a[0] * b[1] - a[1] * b[0] };
 }
 
 inline bool
-operator ==(const vec3 &a, const vec3& b)
+operator==(const vec3 &a, const vec3 &b)
 {
-    return a[0] == b[0] &&
-        a[1] == b[1] &&
-        a[2] == b[2];
+    return a[0] == b[0] && a[1] == b[1] && a[2] == b[2];
 }
 
 inline bool
-operator !=(const vec3 &a, const vec3& b)
+operator!=(const vec3 &a, const vec3 &b)
 {
     return !(a == b);
 }
 
-
 union mat2
 {
-    struct {
-        float m00, m10,
-            m01, m11;
+    struct
+    {
+        float m00, m10, m01, m11;
     };
     vec2 _arr[2];
 
@@ -311,7 +309,7 @@ union mat2
         _arr[1] = col2;
     }
 
-    inline vec2& operator [](int index)
+    inline vec2 &operator[](int index)
     {
         assert(index < 2);
         return _arr[index];
@@ -319,25 +317,19 @@ union mat2
 
     inline const vec2 Row(int i) const
     {
-        return vec2{
-            _arr[0][i], _arr[1][i]
-        };
+        return vec2{ _arr[0][i], _arr[1][i] };
     }
 
-    inline float Det() const
-    {
-        return m00 * m11 - m01 * m10;
-    }
+    inline float Det() const { return m00 * m11 - m01 * m10; }
 };
 
 // m(y,x) order
 // column first
 union mat3
 {
-    struct {
-        float m00, m10, m20, 
-            m01, m11, m21, 
-            m02, m12, m22;
+    struct
+    {
+        float m00, m10, m20, m01, m11, m21, m02, m12, m22;
     };
     vec3 _arr[3];
 
@@ -351,13 +343,13 @@ union mat3
         return m;
     }
 
-    inline vec3& operator [](int index)
+    inline vec3 &operator[](int index)
     {
         assert(index < 3);
         return _arr[index];
     }
 
-    inline const vec3& operator [](int index) const
+    inline const vec3 &operator[](int index) const
     {
         assert(index < 3);
         return _arr[index];
@@ -365,54 +357,41 @@ union mat3
 
     inline const vec3 Row(int i) const
     {
-        return vec3{
-            _arr[0][i], _arr[1][i], _arr[2][i]
-        };
+        return vec3{ _arr[0][i], _arr[1][i], _arr[2][i] };
     }
 
     inline float Det() const
     {
-        return m00 * mat2{ {m11, m21}, {m12, m22} }.Det() -
-            m01 * mat2{ {m10, m20}, {m12, m22} }.Det() +
-            m02 * mat2{ {m10, m20}, {m11, m21} }.Det();
+        return m00 * mat2{ { m11, m21 }, { m12, m22 } }.Det() -
+               m01 * mat2{ { m10, m20 }, { m12, m22 } }.Det() +
+               m02 * mat2{ { m10, m20 }, { m11, m21 } }.Det();
     }
 
     static inline mat3 FromRows(vec3 r1, vec3 r2, vec3 r3)
     {
-        return mat3{
-            r1[0], r2[0], r3[0],
-            r1[1], r2[1], r3[1],
-            r1[2], r2[2], r3[2]
-        };
+        return mat3{ r1[0], r2[0], r3[0], r1[1], r2[1],
+                     r3[1], r1[2], r2[2], r3[2] };
     }
 
     inline mat3 Inverse() const
     {
         const float det = Det();
 
-        const float a = m00, b = m01, c = m02, 
-            d = m10, e = m11, f = m12, 
-            g = m20, h = m21, i = m22;
+        const float a = m00, b = m01, c = m02, d = m10, e = m11, f = m12,
+                    g = m20, h = m21, i = m22;
 
-        const float A = e * i - f * h,
-            B = -(d * i - f * g),
-            C = d * h - e * g,
-            D = -(b * i - c * h),
-            E = a * i - c * g,
-            F = -(a * h - b * g),
-            G = b * f - c * e,
-            H = -(a * f - c * d),
-            I = a * e - b * d;
+        const float A = e * i - f * h, B = -(d * i - f * g), C = d * h - e * g,
+                    D = -(b * i - c * h), E = a * i - c * g,
+                    F = -(a * h - b * g), G = b * f - c * e,
+                    H = -(a * f - c * d), I = a * e - b * d;
 
-        return FromCols(
-            { A / det, B / det, C / det },
-            { D / det, E / det, F / det },
-            { G / det, H / det, I / det });
+        return FromCols({ A / det, B / det, C / det },
+                        { D / det, E / det, F / det },
+                        { G / det, H / det, I / det });
     }
 };
 
-inline mat3
-operator *(mat3 m1, mat3 m2)
+inline mat3 operator*(mat3 m1, mat3 m2)
 {
     mat3 ret = { 0 };
     for (int col = 0; col < 3; col++) {
@@ -424,8 +403,7 @@ operator *(mat3 m1, mat3 m2)
     return ret;
 }
 
-inline vec3 
-operator *(mat3 m, vec3 v)
+inline vec3 operator*(mat3 m, vec3 v)
 {
     vec3 ret = {};
 
@@ -437,19 +415,16 @@ operator *(mat3 m, vec3 v)
 }
 
 inline bool
-operator ==(const mat3 &a, const mat3 &b)
+operator==(const mat3 &a, const mat3 &b)
 {
-    return a[0] == b[0] &&
-        a[1] == b[1] &&
-        a[2] == b[2];
+    return a[0] == b[0] && a[1] == b[1] && a[2] == b[2];
 }
 
 inline bool
-operator !=(const mat3 &a, const mat3 &b)
+operator!=(const mat3 &a, const mat3 &b)
 {
     return !(a == b);
 }
-
 
 mat3 Translate(vec2 amount);
 
@@ -459,7 +434,7 @@ mat3 Rotate(float amount);
 
 template <typename T>
 inline constexpr T
-Lerp(const T& v1, const T& v2, float amount)
+Lerp(const T &v1, const T &v2, float amount)
 {
     return (v1 + (v2 - v1) * amount);
 }
@@ -470,11 +445,6 @@ Round(float f)
     return (fmod(f, 1.0f) < 0.5f) ? int(f) : int(f) + 1;
 }
 
-namespace Identity
-{
-    const mat3 Mat3 = mat3::FromCols(
-        {1, 0, 0},
-        {0, 1, 0},
-        {0, 0, 1}
-    );
+namespace Identity {
+    const mat3 Mat3 = mat3::FromCols({ 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 });
 }

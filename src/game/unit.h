@@ -24,13 +24,13 @@ struct Mirage
 struct Order
 {
     ActionType Type = ActionType::None;
-    Order* Next = nullptr;
+    Order *Next = nullptr;
     Mirage Mirage = { 0 };
 
     union
     {
         ivec2 TilePos;
-        Unit* Other;
+        Unit *Other;
     };
 
     inline Order()
@@ -43,18 +43,18 @@ struct Unit
     ivec2 TilePos = {};
 
     // Linked list of orders to process
-    Order* Orders = nullptr;
+    Order *Orders = nullptr;
     int ID;
 
     Unit();
     Unit(Sprite spr, ivec2 pos);
     Unit(const Unit &) = default;
 
-private:
+  private:
     static int _idCount;
 };
 
 struct Game;
-void DrawUnit(Game* engine, const Unit& unit);
-void DrawMirage(Game* engine, const Mirage &mirage);
-vec2 GetTileCenter(const ivec2& v);
+void DrawUnit(Game *engine, const Unit &unit);
+void DrawMirage(Game *engine, const Mirage &mirage);
+vec2 GetTileCenter(const ivec2 &v);
