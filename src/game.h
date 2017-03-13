@@ -7,13 +7,31 @@
 
 #include "common.h"
 #include "content.h"
-#include "entities/unit.h"
+#include "game/unit.h"
 #include "graphics.h"
 #include "math.h"
+#include "pool.h"
 
-typedef Texture (*PFN_LOADIMAGE)(std::string filename);
-typedef void (*PFN_DRAWSPRITE)(Texture, struct Rectangle, struct Rectangle,
-                               float);
+struct Level;
+struct Game;
+
+class Updateable
+{
+public:
+    virtual void Update(Game &g) = 0;
+};
+
+class Renderable
+{
+public:
+    virtual void Draw(Game &g) = 0;
+};
+
+class GUIRenderable
+{
+public:
+    virtual void DrawGUI(Game &g) = 0;
+};
 
 struct Level
 {
@@ -30,33 +48,18 @@ struct Level
 
         throw std::invalid_argument("tile gid is out of range of all tilesets");
     }
+
+    Pool<Unit> Units;
+    Pool<Order> Orders;
 };
 
-struct Game;
-class GameComponent
-{
-  public:
-    inline virtual void Update() {}
-    inline virtual void Draw() {}
-    inline virtual void DrawGUI() {}
-    inline virtual ~GameComponent() {}
-    Game& Engine;
-
-  protected:
-    inline GameComponent(Game& g)
-      : Engine(g)
-    {
-    }
-};
-
-// Invariant: HalfWidth/HalfHeight are positive
-struct BoundingBox
-{
-    Rectangle Rect;
-};
+void ProcessTurn(Game &);
 
 struct Game
 {
+    template<typename T>
+    using refcount_arr = std::vector<std::shared_ptr<T>>;
+
     float DT;
     Input OldInput;
     struct Input Input;
@@ -67,24 +70,40 @@ struct Game
     OrthoView View;
     OrthoView Screen;
 
-    std::vector<GameComponent*> Components;
     Level Level;
 
     ContentManager Content;
 
-    std::vector<BoundingBox> Statics;
+    refcount_arr<GUIRenderable> GUIRenderables;
+    refcount_arr<Renderable> Renderables;
+    refcount_arr<Updateable> Updateables;
 
-    std::vector<GameComponent *> componentAddQueue, componentRmQueue;
-    inline void AddComponent(GameComponent* c)
+    template<typename T>
+    void Add(T v)
     {
-        componentAddQueue.push_back(c);
-    }
-    inline void RemoveComponent(GameComponent* c)
-    {
-        componentRmQueue.push_back(c);
-    }
+        static_assert(
+            std::is_base_of<GUIRenderable, T>::value ||
+            std::is_base_of<Renderable, T>::value ||
+            std::is_base_of<Updateable, T>::value,
+            "Unable to convert type T to any of the following: Controller, GUIRenderable, Renderable, Updateable"
+            );
 
-    std::vector<Unit> Units;
+        auto val = make_shared<T>(std::move(v));
+
+        // TODO: We know at compile time which interfaces T can convert to,
+        // can we do the actual cast at compile time instead of runtime?
+        if (std::is_base_of<GUIRenderable, T>::value) {
+            GUIRenderables.push_back(std::dynamic_pointer_cast<GUIRenderable>(val));
+        }
+
+        if (std::is_base_of<Renderable, T>::value) {
+            Renderables.push_back(std::dynamic_pointer_cast<Renderable>(val));
+        }
+
+        if (std::is_base_of<Updateable, T>::value) {
+            Updateables.push_back(std::dynamic_pointer_cast<Updateable>(val));
+        }
+    }
 
     inline bool KeyPressed(int id) const
     {
@@ -96,18 +115,6 @@ struct Game
         return Input.Mouse[id] && !OldInput.Mouse[id];
     }
 
-    template <typename T>
-    inline T* GetInstanceOf()
-    {
-        for (auto c : Components) {
-            T* val = dynamic_cast<T*>(c);
-            if (val)
-                return val;
-        }
-
-        return nullptr;
-    }
-
     inline Game(std::string dataDir)
       : Content(dataDir)
       , ShouldClose(false)
@@ -117,7 +124,6 @@ struct Game
 
 void Game_Init(Game&);
 void LoadLevel(const std::string& fileLoc, Game& info);
-void ParseTileLayer(const Json::Value& layer, Level* info);
+void ParseTileLayer(const Json::Value& layer, Level& info);
 void Game_Update(Game&);
 void Game_Render(Game&);
-void ResolveCollision(Rectangle mask, vec2* pos, Game& engine);

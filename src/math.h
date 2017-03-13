@@ -137,8 +137,8 @@ struct ivec2
     }
 
     constexpr inline explicit ivec2(const vec2& v)
-      : x(int(v.x))
-      , y(int(v.y))
+      : x(static_cast<int>(v.x))
+      , y(static_cast<int>(v.y))
     {
     }
 
@@ -154,7 +154,7 @@ struct ivec2
     ivec2& operator=(const ivec2&) = default;
     ivec2& operator=(ivec2&&) = default;
 
-    inline explicit operator vec2() const { return { float(x), float(y) }; }
+    inline explicit operator vec2() const { return { static_cast<float>(x), static_cast<float>(y) }; }
 };
 
 constexpr bool
@@ -388,13 +388,13 @@ union mat3
 
     inline mat3 Inverse() const
     {
-        float det = Det();
+        const float det = Det();
 
-        float a = m00, b = m01, c = m02, 
+        const float a = m00, b = m01, c = m02, 
             d = m10, e = m11, f = m12, 
             g = m20, h = m21, i = m22;
 
-        float A = e * i - f * h,
+        const float A = e * i - f * h,
             B = -(d * i - f * g),
             C = d * h - e * g,
             D = -(b * i - c * h),

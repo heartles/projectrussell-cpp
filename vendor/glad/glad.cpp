@@ -25,12 +25,14 @@
 
 void _pre_call_callback_default(const char *name, void *funcptr, int len_args, ...) {}
 void _post_call_callback_default(const char *name, void *funcptr, int len_args, ...) {
+#ifdef DEBUG
     GLenum error_code;
     error_code = glad_glGetError();
 
     if (error_code != GL_NO_ERROR) {
         fprintf(stderr, "ERROR %d in %s\n", error_code, name);
     }
+#endif
 }
 
 static GLADcallback _pre_call_callback = _pre_call_callback_default;

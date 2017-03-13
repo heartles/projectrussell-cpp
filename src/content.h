@@ -39,15 +39,12 @@ class ContentManager
     std::map<FontDesc, Font, FontDescCmp> _fonts{};
 
     const Shader* _defaultFontShader;
-    std::string _dataDir;
+    const std::string _dataDir;
 
   public:
-    inline const std::string ResolvePath(std::string path)
-    {
-        return _dataDir + path;
-    }
+      std::string ResolvePath(std::string path) const;
 
-    ContentManager(std::string dataDir);
+    ContentManager(const std::string &dataDir);
 
     const Shader* LoadShader(std::string vertPath, std::string fragPath);
     const Texture* LoadTexture(std::string filename);

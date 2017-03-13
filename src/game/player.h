@@ -11,16 +11,15 @@
 
 struct ActionButton
 {
-    ActionType Type;
-    std::string Name;
-    Rectangle Box;
+    ActionType Type = ActionType::None;
+    std::string Name{};
+    Rectangle Box = { 0 };
 };
 
-class PlayerController : public GameComponent
+class PlayerController
+    : public Updateable, public GUIRenderable
 {
     Unit* _selected = nullptr;
-
-    Pool<Order> _orders{};
 
     ActionButton* _selectedAction = nullptr;
     std::vector<ActionButton> _availableActions{ 8 };
@@ -29,13 +28,6 @@ class PlayerController : public GameComponent
     void deselectUnit(Unit* u);
 
   public:
-    inline PlayerController(Game& eng)
-      : GameComponent(eng)
-    {
-    }
-
-    void ProcessTurn();
-
-    virtual void Update() override;
-    virtual void DrawGUI() override;
+      virtual void Update(Game &) override;
+      virtual void DrawGUI(Game &) override;
 };

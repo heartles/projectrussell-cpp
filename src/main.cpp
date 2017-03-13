@@ -27,7 +27,7 @@ string
 GetGameRootDir()
 {
     char* path = getcwd(nullptr, 32);
-    std::string result = path;
+    std::string result = (path ? path : throw std::exception("getcwd returned nullptr"));
     Log(result);
 
     free(path);
@@ -119,10 +119,10 @@ main(int argc, char** argv)
             glfwSwapBuffers(window);
             glfwPollEvents();
 
-            double newTime = glfwGetTime();
+            const double newTime = glfwGetTime();
             g.DT = static_cast<float>(newTime - time);
 
-            double fps = 1 / g.DT;
+            const float fps = 1 / g.DT;
 
             if (fps < 59) {
 

@@ -2,6 +2,8 @@
 
 #include "../game.h"
 
+int Unit::_idCount;
+
 void
 DrawUnit(Game* engine, const Unit& unit)
 {
@@ -18,5 +20,17 @@ DrawMirage(Game* engine, const Mirage& m)
 vec2
 GetTileCenter(const ivec2& v)
 {
-    return { float(v.x) + 0.5f, float(v.y) - 0.5f };
+    return { static_cast<float>(v.x) + 0.5f, static_cast<float>(v.y) - 0.5f };
+}
+
+Unit::Unit()
+{
+    ID = _idCount++;
+}
+
+Unit::Unit(Sprite spr, ivec2 pos)
+{
+    Spr = spr;
+    TilePos = pos;
+    ID = _idCount++;
 }

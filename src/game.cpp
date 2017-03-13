@@ -9,11 +9,12 @@
 #include <json/json.h>
 
 #include "content.h"
-#include "entities/player.h"
+#include "game/player.h"
 #include "entityCreator.h"
 #include "graphics.h"
 #include "math.h"
 #include "shader.h"
+#include "game/unitRenderer.h"
 
 using namespace std;
 
@@ -105,7 +106,7 @@ LoadLevel(const std::string& fileLoc, Game& info)
     auto layersJSON = val["layers"];
     for (auto layer : layersJSON) {
         if (layer["type"] == "tilelayer")
-            ParseTileLayer(layer, &level);
+            ParseTileLayer(layer, level);
         else if (layer["type"] == "objectgroup") {
             for (auto obj : layer["objects"]) {
                 auto halfWidth = obj["width"].asFloat() / 2 / level.TileWidth;
@@ -138,6 +139,8 @@ LoadLevel(const std::string& fileLoc, Game& info)
         }
     }
 
+    info.Add(UnitRenderer{});
+
     for (auto& t : level.Tilesets) {
         glGenVertexArrays(1, &t.VertexArrayID);
         GLenum err = glGetError();
@@ -158,11 +161,11 @@ LoadLevel(const std::string& fileLoc, Game& info)
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
     }
 
-    info.Components.push_back(new PlayerController(info));
+    info.Add(PlayerController{});
 }
 
 void
-ParseTileLayer(const Json::Value& layer, Level* level)
+ParseTileLayer(const Json::Value& layer, Level &level)
 {
     auto data = layer["data"];
     for (int i = 0; i < data.size(); ++i) {
@@ -175,7 +178,7 @@ ParseTileLayer(const Json::Value& layer, Level* level)
 
         Tileset* tilesetPtr = nullptr;
 
-        for (auto& t : level->Tilesets) {
+        for (auto& t : level.Tilesets) {
             if (tileIndex - t.FirstTileID >= 0 &&
                 tileIndex - t.FirstTileID - t.TileCountTotal < 0) {
                 tilesetPtr = &t;
@@ -188,11 +191,11 @@ ParseTileLayer(const Json::Value& layer, Level* level)
         }
         auto& tileset = *tilesetPtr;
 
-        float minx = float(i % level->Width) - 0.01f;
-        float maxx = float(i % level->Width + 1) + 0.01f;
+        float minx = float(i % level.Width) - 0.01f;
+        float maxx = float(i % level.Width + 1) + 0.01f;
 
-        float maxy = float(-i / level->Width) + 0.01f;
-        float miny = float(-i / level->Width - 1) - 0.01f;
+        float maxy = float(-i / level.Width) + 0.01f;
+        float miny = float(-i / level.Width - 1) - 0.01f;
 
         // tri 1
         tileset.Positions.push_back({
@@ -241,24 +244,9 @@ Game_Update(Game& info)
     if (info.Input.Keyboard[GLFW_KEY_ESCAPE])
         info.ShouldClose = true;
 
-    for (auto c : info.Components) {
-        c->Update();
+    for (auto c : info.Updateables) {
+        c->Update(info);
     }
-
-    for (auto c : info.componentAddQueue) {
-        info.Components.push_back(c);
-    }
-    info.componentAddQueue.clear();
-
-    for (auto c : info.componentRmQueue) {
-        for (int i = 0; i < info.Components.size(); i++) {
-            if (info.Components[i] == c) {
-                info.Components.erase(info.Components.begin() + i);
-                break;
-            }
-        }
-    }
-    info.componentRmQueue.clear();
 }
 
 void
@@ -292,39 +280,12 @@ Game_Render(Game& info)
         glDrawArrays(GL_TRIANGLES, 0, t.Positions.size());
     }
 
-    for (auto c : info.Components) {
-        c->Draw();
+    for (auto c : info.Renderables) {
+        c->Draw(info);
+    }
+    
+    for (auto c : info.GUIRenderables) {
+        c->DrawGUI(info);
     }
 
-    for (auto& u : info.Units) {
-        DrawUnit(&info, u);
-    }
-
-    for (auto c : info.Components) {
-        c->DrawGUI();
-    }
-}
-
-void
-ResolveCollision(Rectangle mask, vec2* pos, Game& engine)
-{
-    for (auto s : engine.Statics) {
-        if (s.Rect.Intersects(mask)) {
-            s.Rect.HalfWidth += mask.HalfWidth;
-            s.Rect.HalfHeight += mask.HalfHeight;
-
-            auto angle = atan2f((mask.Y - s.Rect.Y) / s.Rect.HalfHeight,
-                                (mask.X - s.Rect.X) / s.Rect.HalfWidth);
-
-            if (angle >= pi / 4 && angle < 3 * pi / 4) // collision from above
-                pos->y = s.Rect.Max().y;
-            else if (angle >= -3 * pi / 4 &&
-                     angle < -pi / 4) // collision from below
-                pos->y = s.Rect.Min().y;
-            else if (angle >= -pi / 4 && angle < pi / 4) // collision from right
-                pos->x = s.Rect.Max().x;
-            else // collision from left
-                pos->x = s.Rect.Min().x;
-        }
-    }
 }

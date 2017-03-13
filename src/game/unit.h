@@ -15,7 +15,7 @@ enum class ActionType
 struct Unit;
 struct Mirage
 {
-    Sprite Spr;
+    Sprite Spr = { 0 };
     ivec2 TilePos;
 
     Unit *Original;
@@ -25,7 +25,7 @@ struct Order
 {
     ActionType Type = ActionType::None;
     Order* Next = nullptr;
-    Mirage Mirage;
+    Mirage Mirage = { 0 };
 
     union
     {
@@ -39,11 +39,19 @@ struct Order
 
 struct Unit
 {
-    Sprite Spr;
-    ivec2 TilePos;
+    Sprite Spr = { 0 };
+    ivec2 TilePos = {};
 
     // Linked list of orders to process
-    Order* Orders;
+    Order* Orders = nullptr;
+    int ID;
+
+    Unit();
+    Unit(Sprite spr, ivec2 pos);
+    Unit(const Unit &) = default;
+
+private:
+    static int _idCount;
 };
 
 struct Game;

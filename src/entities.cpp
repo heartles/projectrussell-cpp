@@ -3,16 +3,17 @@
 
 #include <json/json.h>
 
-#include "entities/player.h"
+#include "game/player.h"
 #include "entityCreator.h"
 #include "game.h"
 
 ObjectCreationMap ObjectCreator{
     { "unit",
       [](Game& Engine, Level* level, const EntityDesc& obj) {
-          Engine.Units.push_back(Unit{
-            level->GetTilesetFromGID(obj.TileGID)->SpriteFromGID(obj.TileGID),
-            ivec2(obj.Pos) });
+          *Engine.Level.Units.Allocate() = 
+              Unit(
+                level->GetTilesetFromGID(obj.TileGID)->SpriteFromGID(obj.TileGID),
+                ivec2(obj.Pos));
       } },
 
     { "view",

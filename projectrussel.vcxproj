@@ -90,31 +90,40 @@
     <LinkIncremental>true</LinkIncremental>
     <Linkage-freetype>
     </Linkage-freetype>
-    <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <EnableCppCoreCheck>true</EnableCppCoreCheck>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Analyze|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <Linkage-freetype />
-    <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <RunCodeAnalysis>true</RunCodeAnalysis>
+    <EnableCppCoreCheck>true</EnableCppCoreCheck>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <Linkage-freetype>
     </Linkage-freetype>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <EnableCppCoreCheck>true</EnableCppCoreCheck>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Linkage-freetype>
     </Linkage-freetype>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <EnableCppCoreCheck>true</EnableCppCoreCheck>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Analyze|x64'">
     <Linkage-freetype />
-    <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <RunCodeAnalysis>true</RunCodeAnalysis>
+    <EnableCppCoreCheck>true</EnableCppCoreCheck>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Linkage-freetype>
     </Linkage-freetype>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <EnableCppCoreCheck>true</EnableCppCoreCheck>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -129,6 +138,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <ForcedIncludeFiles>
       </ForcedIncludeFiles>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <TargetMachine>MachineX86</TargetMachine>
@@ -163,6 +173,7 @@
       <ForcedIncludeFiles>
       </ForcedIncludeFiles>
       <EnablePREfast>true</EnablePREfast>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <TargetMachine>MachineX86</TargetMachine>
@@ -195,6 +206,11 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <ForcedIncludeFiles>
       </ForcedIncludeFiles>
+      <Optimization>Full</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <TargetMachine>MachineX86</TargetMachine>
@@ -227,6 +243,7 @@
       <ForcedIncludeFiles>
       </ForcedIncludeFiles>
       <WarningLevel>Level3</WarningLevel>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -256,6 +273,7 @@
       </ForcedIncludeFiles>
       <WarningLevel>Level3</WarningLevel>
       <EnablePREfast>true</EnablePREfast>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -284,6 +302,11 @@
       <ForcedIncludeFiles>
       </ForcedIncludeFiles>
       <WarningLevel>Level3</WarningLevel>
+      <Optimization>Full</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -305,12 +328,13 @@
   <ItemGroup>
     <ClCompile Include="src\common.cpp" />
     <ClCompile Include="src\content.cpp" />
-    <ClCompile Include="src\entities\unit.cpp" />
+    <ClCompile Include="src\game\unit.cpp" />
     <ClCompile Include="src\game.cpp" />
+    <ClCompile Include="src\game\unitRenderer.cpp" />
     <ClCompile Include="src\graphics.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\math.cpp" />
-    <ClCompile Include="src\entities\player.cpp" />
+    <ClCompile Include="src\game\player.cpp" />
     <ClCompile Include="src\entities.cpp" />
     <ClCompile Include="src\shader.cpp" />
     <ClCompile Include="src\pool.h" />
@@ -336,12 +360,13 @@
   <ItemGroup>
     <ClInclude Include="src\common.h" />
     <ClInclude Include="src\content.h" />
-    <ClInclude Include="src\entities\unit.h" />
+    <ClInclude Include="src\game\unitRenderer.h" />
+    <ClInclude Include="src\game\unit.h" />
     <ClInclude Include="src\entityCreator.h" />
     <ClInclude Include="src\game.h" />
     <ClInclude Include="src\graphics.h" />
     <ClInclude Include="src\math.h" />
-    <ClInclude Include="src\entities\player.h" />
+    <ClInclude Include="src\game\player.h" />
     <ClInclude Include="src\mathstrings.h" />
     <ClInclude Include="src\shader.h" />
     <ClInclude Include="vendor\glad\glad.h" />

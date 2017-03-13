@@ -47,14 +47,19 @@ ReadAllText(const std::string& filename)
     std::fclose(file);
     std::string str = buf;
     delete[] buf;
-    return std::move(str);
+    return str;
 }
 
-ContentManager::ContentManager(std::string dataDir)
-  : _dataDir(std::move(dataDir))
+ContentManager::ContentManager(const std::string &dataDir)
+  : _dataDir(dataDir)
 {
     _defaultFontShader =
       LoadShader("/content/text.gl.vert", "/content/text.gl.frag");
+}
+
+std::string ContentManager::ResolvePath(std::string path) const
+{
+    return _dataDir + path;
 }
 
 const Shader*

@@ -23,16 +23,16 @@ DEBUG_LoadShader(std::string vertPath, std::string fragPath)
 
     glCompileShader(s._vertShader);
     GLint success;
-    glGetShaderiv(s._vertShader, GL_COMPILE_STATUS, (GLint*)&success);
+    glGetShaderiv(s._vertShader, GL_COMPILE_STATUS, &success);
     if (!success) {
         GLint maxLength;
         glGetShaderiv(s._vertShader, GL_INFO_LOG_LENGTH, &maxLength);
         if (maxLength) {
-            std::vector<GLchar> infoLog((int)maxLength);
+            std::vector<GLchar> infoLog(static_cast<int>(maxLength));
             glGetShaderInfoLog(s._vertShader, maxLength, &maxLength,
                                infoLog.data());
 
-            Log((char*)infoLog.data());
+            Log(reinterpret_cast<char *>(infoLog.data()));
         }
     }
 
@@ -46,11 +46,11 @@ DEBUG_LoadShader(std::string vertPath, std::string fragPath)
         GLint maxLength;
         glGetShaderiv(s._fragShader, GL_INFO_LOG_LENGTH, &maxLength);
         if (maxLength) {
-            std::vector<GLchar> infoLog((int)maxLength);
+            std::vector<GLchar> infoLog(static_cast<int>(maxLength));
             glGetShaderInfoLog(s._fragShader, maxLength, &maxLength,
                                infoLog.data());
 
-            Log((char*)infoLog.data());
+            Log(reinterpret_cast<char *>(infoLog.data()));
         }
     }
 
@@ -61,15 +61,15 @@ DEBUG_LoadShader(std::string vertPath, std::string fragPath)
     glLinkProgram(s._program);
 
     GLint isLinked;
-    glGetProgramiv(s._program, GL_LINK_STATUS, (int*)&isLinked);
+    glGetProgramiv(s._program, GL_LINK_STATUS, &isLinked);
     if (!isLinked) {
         GLint maxLength;
         glGetProgramiv(s._program, GL_INFO_LOG_LENGTH, &maxLength);
 
-        std::vector<GLchar> infoLog((int)maxLength);
+        std::vector<GLchar> infoLog(maxLength);
         glGetProgramInfoLog(s._program, maxLength, &maxLength, infoLog.data());
 
-        Log((char*)infoLog.data());
+        Log(reinterpret_cast<char *>(infoLog.data()));
     }
 
     return s;

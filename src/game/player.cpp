@@ -8,10 +8,10 @@
 #include <GLFW/glfw3.h>
 
 ivec2
-GetTilePos(Game& engine, vec2 screen)
+GetTilePos(const Game& engine, vec2 screen)
 {
     auto game = engine.View.ViewportToWorld(screen);
-    return { int(game.x), int(game.y) };
+    return { static_cast<int>(game.x), static_cast<int>(game.y) };
 }
 
 vec2
@@ -66,15 +66,15 @@ EnqueueOrder(Unit* u, Order* o)
 }
 
 void
-PlayerController::Update()
+PlayerController::Update(Game &Engine)
 {
-    bool m = Engine.MousePressed(0);
-    auto mousePos =
+    const bool m = Engine.MousePressed(0);
+    const auto mousePos =
       GetTilePos(Engine, { Engine.Input.MouseX, Engine.Input.MouseY });
     if (Engine.MousePressed(0)) {
         bool clickedOnUnit = false;
         if (!_selectedAction || _selectedAction->Type == ActionType::None) {
-            for (auto& u : Engine.Units) {
+            for (auto& u : Engine.Level.Units) {
                 if (u.TilePos == mousePos) {
                     if (&u != _selected) {
                         selectUnit(&u);
@@ -88,7 +88,7 @@ PlayerController::Update()
         }
 
         bool clickedOnButton = false;
-        vec2 screenMousePos = Engine.Screen.ViewportToWorld(
+        const vec2 screenMousePos = Engine.Screen.ViewportToWorld(
           { Engine.Input.MouseX, Engine.Input.MouseY });
         if (_selected) {
             for (auto& button : _availableActions) {
@@ -104,38 +104,39 @@ PlayerController::Update()
             }
         }
 
-        if (!clickedOnButton && !clickedOnButton) {
-            auto endTurnButton =
-              Rectangle::FromCorner({ 1920 - 180, 60 }, 150, 60);
+        if (!clickedOnButton && !clickedOnUnit) {
+            const auto endTurnButton =
+                Rectangle::FromCorner({ 1920 - 180, 60 }, 150, 60);
             if (endTurnButton.Contains(screenMousePos)) {
-                ProcessTurn();
+                ProcessTurn(Engine);
+                return;
             }
-        }
 
-        if (!clickedOnUnit && !clickedOnButton && _selectedAction) {
-            switch (_selectedAction->Type) {
+            if (_selectedAction) {
+                switch (_selectedAction->Type) {
                 case ActionType::Move: {
-                    Order* order = _orders.Allocate();
+                    Order* order = Engine.Level.Orders.Allocate();
                     order->Type = ActionType::Move;
                     order->TilePos = mousePos;
                     EnqueueOrder(_selected, order);
                 } break;
                 case ActionType::Attack: {
-                    for (auto& u : Engine.Units) {
+                    for (auto& u : Engine.Level.Units) {
                         if (u.TilePos == mousePos) {
-                            Order* order = _orders.Allocate();
+                            Order* order = Engine.Level.Orders.Allocate();
                             order->Type = ActionType::Attack;
                             order->Other = &u;
                             EnqueueOrder(_selected, order);
                         }
                     }
                 } break;
+                }
             }
         }
     }
 
     if (Engine.MousePressed(1) && _selected) {
-        Order* order = _orders.Allocate();
+        Order* order = Engine.Level.Orders.Allocate();
         order->Type = ActionType::Move;
         order->TilePos = mousePos;
         EnqueueOrder(_selected, order);
@@ -143,7 +144,7 @@ PlayerController::Update()
 }
 
 void
-PlayerController::DrawGUI()
+PlayerController::DrawGUI(Game &Engine)
 {
     if (_selected) {
         auto spr =
@@ -188,31 +189,30 @@ PlayerController::DrawGUI()
 }
 
 void
-PlayerController::ProcessTurn()
+ProcessTurn(Game &Engine)
 {
     Log("Processing Turn...");
-    for (auto& u : Engine.Units) {
+    for (auto& u : Engine.Level.Units) {
         Order* o = u.Orders;
 
-        size_t unitID = size_t(&u - Engine.Units.data());
-        Log("\tProcessing orders for unit " + std::to_string(unitID));
+        Log("\tProcessing orders for unit " + std::to_string(u.ID));
         while (o) {
             switch (o->Type) {
                 case ActionType::Move: {
                     Log("\t\tExecuting Move from " +
-                        std::to_string(_selected->TilePos) + " to " +
+                        std::to_string(u.TilePos) + " to " +
                         std::to_string(o->TilePos));
-                    _selected->TilePos = o->TilePos;
+                    u.TilePos = o->TilePos;
                 } break;
                 case ActionType::Attack: {
-                    size_t otherUnitID = size_t(o->Other - Engine.Units.data());
+                    const auto otherUnitID = o->Other->ID;
                     Log("\t\tAttack made against unit " +
                         std::to_string(otherUnitID));
                 } break;
             }
 
             auto nextO = o->Next;
-            _orders.Free(o);
+            Engine.Level.Orders.Free(o);
             o = nextO;
         }
         u.Orders = nullptr;
