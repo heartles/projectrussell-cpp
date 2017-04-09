@@ -10,7 +10,7 @@
 #include "common.h"
 #include "game.h"
 #include "graphics.h"
-
+#include "audio.h"
 using namespace std;
 
 #ifdef WINDOWS
@@ -79,7 +79,7 @@ main(int argc, char **argv)
 
         glfwSwapInterval(0);
 
-        Game g = Game(GetGameRootDir());
+		Game g{ GetGameRootDir() };
 
         g.Screen =
           OrthoView(Rectangle::FromCorner({}, mode->width, mode->height), &g);
@@ -116,6 +116,7 @@ main(int argc, char **argv)
               g.ClearColor.r, g.ClearColor.g, g.ClearColor.b, g.ClearColor.a);
             glClear(GL_COLOR_BUFFER_BIT);
             Game_Render(g);
+			g.Audio.RenderSound(g.DT);
 
             glfwSwapBuffers(window);
             glfwPollEvents();

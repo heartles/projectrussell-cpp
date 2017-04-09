@@ -8,6 +8,7 @@
 
 #include "graphics.h"
 #include "shader.h"
+#include "audio.h"
 
 std::string ReadAllText(const std::string &filename);
 
@@ -35,6 +36,7 @@ class ContentManager
     std::map<std::pair<std::string, std::string>, Shader> _shaders{};
     std::map<std::string, Texture> _textures{};
     std::map<FontDesc, Font, FontDescCmp> _fonts{};
+	std::map<std::string, Sound> _sounds{};
 
     const Shader *_defaultFontShader;
     const std::string _dataDir;
@@ -50,4 +52,6 @@ class ContentManager
     const Font *LoadFont(const std::string &filename,
                          int pxSize,
                          const Shader *s = nullptr);
+
+	const Sound *LoadSound(const std::string &filename);
 };

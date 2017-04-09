@@ -9,8 +9,8 @@ class Pool
 {
     struct inst
     {
-        bool inUse = false;
-        T val;
+        mutable bool inUse = false;
+        mutable T val;
     };
 
     struct bucket
@@ -35,6 +35,7 @@ class Pool
     };
 
     std::vector<bucket> _pool{};
+	mutable size_t _size = 0;
 
   public:
     class it
@@ -114,29 +115,41 @@ class Pool
         }
     }
 
+	T *Emplace(T &&val)
+	{
+		for (bucket &b : _pool) {
+			if (b.free > 0) {
+				b.free--;
+
+				for (int i = 0; i < BUCKET_SIZE; i++) {
+					if (!b[i].inUse) {
+						b[i].val = val;
+						b[i].inUse = true;
+						_size++;
+						return &b[i].val;
+					}
+				}
+			}
+		}
+
+		_pool.emplace_back();
+		_pool[_pool.size() - 1][0].val = val;
+		_pool[_pool.size() - 1][0].inUse = true;
+		_size++;
+		return &_pool[_pool.size() - 1][0].val;
+	}
+
     T *Allocate()
     {
-        for (bucket &b : _pool) {
-            if (b.free > 0) {
-                b.free--;
-
-                for (int i = 0; i < BUCKET_SIZE; i++) {
-                    if (!b[i].inUse) {
-                        b[i].inUse = true;
-                        b[i].val = T();
-                        return &b[i].val;
-                    }
-                }
-            }
-        }
-
-        _pool.emplace_back();
-        _pool[_pool.size() - 1][0].inUse = true;
-        _pool[_pool.size() - 1][0].val = T();
-        return &_pool[_pool.size() - 1][0].val;
+		return Emplace(T());
     }
-
-    it begin() { return it{ this, 0, 0 }; }
+	
+	size_t size()
+	{
+		return _size;
+	}
 
     it end() { return it{ this, static_cast<int>(_pool.size()), 0 }; }
+    
+	it begin() { return _size ? it{ this, 0, 0 } : end(); }
 };

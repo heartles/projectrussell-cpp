@@ -1,13 +1,17 @@
-#define _CRT_SECURE_NO_WARNINGS
 #include "content.h"
-#include "common.h"
-#include "game.h"
+
+#define _CRT_SECURE_NO_WARNINGS
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
+#include <string>
+
+#include "common.h"
+#include "game.h"
+
 #include <glad/glad.h>
 #include <stb/image.h>
-#include <string>
+#include <audiodecoder.h>
 
 std::string
 ReadAllText(const std::string &filename)
@@ -78,4 +82,32 @@ ContentManager::LoadFont(const std::string &f, int pxSize, const Shader *shader)
     auto font = DEBUG_LoadFont(filename, pxSize, shader);
     _fonts[d] = font;
     return &_fonts[d];
+}
+
+const Sound *
+ContentManager::LoadSound(const std::string &f)
+{
+	std::string filename = _dataDir + f;
+
+	AudioDecoder decoder{ filename };
+	assert(decoder.open() == 0); //TODO: check return?
+
+	int samplesToRead = decoder.numSamples();
+	decoder.seek(0);
+
+	std::vector<float> samples(samplesToRead);
+
+	uint64_t totalSamplesRead = 0;
+	int lastSamplesRead;
+	do {
+		lastSamplesRead = decoder.read(
+			min(8192, samplesToRead - totalSamplesRead),
+			samples.data() + totalSamplesRead);
+
+		totalSamplesRead += lastSamplesRead;
+	} while (totalSamplesRead < samplesToRead && lastSamplesRead);
+	
+	Sound s = { std::move(samples), decoder.channels(), decoder.sampleRate() };
+	_sounds[filename] = s;
+	return &_sounds[filename];
 }

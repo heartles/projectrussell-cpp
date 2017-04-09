@@ -11,6 +11,7 @@
 #include "graphics.h"
 #include "math.h"
 #include "pool.h"
+#include "audio.h"
 
 struct Level;
 struct Game;
@@ -100,6 +101,7 @@ struct Game
     Level Level;
 
     ContentManager Content;
+	AudioManager Audio;
 
     refcount_arr<Renderable> Renderables;
     refcount_arr<Updateable> Updateables;

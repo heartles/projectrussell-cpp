@@ -16,6 +16,8 @@
 #include "math.h"
 #include "shader.h"
 
+#include "debug/audioManagerRenderer.h"
+
 using namespace std;
 
 struct Rectangle
@@ -30,6 +32,8 @@ FromPixels(Texture spr, struct Rectangle r)
     return output;
 }
 
+
+ActiveSoundHandle snd;
 void
 Game_Init(Game &info)
 {
@@ -47,6 +51,10 @@ Game_Init(Game &info)
       info.Content.LoadShader("/content/text.gl.vert", "/content/text.gl.frag");
 
     string fileLoc = info.Content.ResolvePath("/content/main.json");
+
+	snd = info.Audio.PlaySound(info.Content.LoadSound("/content/song.mp3"));
+	
+	info.Add(AudioManager::DEBUG_Renderer{});
 
     LoadLevel(fileLoc, info);
 }
@@ -250,6 +258,11 @@ Game_Update(Game &info)
     for (auto c : info.Updateables) {
         c->Update(info);
     }
+
+	if (info.KeyPressed(GLFW_KEY_SPACE)) {
+		auto &s = *info.Audio.Get(snd);
+		s.Active = !s.Active;
+	}
 }
 
 void

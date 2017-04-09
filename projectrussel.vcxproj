@@ -127,13 +127,13 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>_GLFW_WIN32;WINDOWS;DEBUG_EXCEPTION_HANDLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>vendor</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_GLFW_WIN32;WINDOWS;PA_USE_DS;DEBUG_EXCEPTION_HANDLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>vendor;deps/portaudio/include;deps/portaudio/src/common;deps/portaudio/src/hostapi/dsound;deps/portaudio/src/os/win;deps/libaudiodecoder/include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
-      <LanguageStandard>stdcpp14</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <UndefinePreprocessorDefinitions>%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
       <ForcedIncludeFiles>
       </ForcedIncludeFiles>
@@ -143,7 +143,7 @@
       <TargetMachine>MachineX86</TargetMachine>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;mf.lib;mfplat.lib;mfreadwrite.lib;evr.lib;dxva2.lib;mfuuid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <CustomBuildStep>
       <Command>
@@ -160,13 +160,13 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Analyze|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>_GLFW_WIN32;WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>vendor</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_GLFW_WIN32;WINDOWS;PA_USE_DS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>vendor;deps/portaudio/include;deps/portaudio/src/common;deps/portaudio/src/hostapi/dsound;deps/portaudio/src/os/win;deps/libaudiodecoder/include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
-      <LanguageStandard>stdcpp14</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <UndefinePreprocessorDefinitions>%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
       <ForcedIncludeFiles>
       </ForcedIncludeFiles>
@@ -177,7 +177,7 @@
       <TargetMachine>MachineX86</TargetMachine>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;mf.lib;mfplat.lib;mfreadwrite.lib;evr.lib;dxva2.lib;mfuuid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <CustomBuildStep>
       <Command>
@@ -194,12 +194,12 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>_GLFW_WIN32;WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>vendor</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_GLFW_WIN32;WINDOWS;PA_USE_DS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>vendor;deps/portaudio/include;deps/portaudio/src/common;deps/portaudio/src/hostapi/dsound;deps/portaudio/src/os/win;deps/libaudiodecoder/include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <LanguageStandard>stdcpp14</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <UndefinePreprocessorDefinitions>%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <ForcedIncludeFiles>
@@ -216,7 +216,7 @@
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;mf.lib;mfplat.lib;mfreadwrite.lib;evr.lib;dxva2.lib;mfuuid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <CustomBuildStep>
       <Command>
@@ -233,9 +233,9 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PreprocessorDefinitions>_GLFW_WIN32;WINDOWS;DEBUG_EXCEPTION_HANDLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>vendor</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp14</LanguageStandard>
+      <PreprocessorDefinitions>_GLFW_WIN32;WINDOWS;PA_USE_DS;DEBUG_EXCEPTION_HANDLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>vendor;deps/portaudio/include;deps/portaudio/src/common;deps/portaudio/src/hostapi/dsound;deps/portaudio/src/os/win;deps/libaudiodecoder/include</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <UndefinePreprocessorDefinitions>%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
       <ForcedIncludeFiles>
       </ForcedIncludeFiles>
@@ -244,7 +244,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;mf.lib;mfplat.lib;mfreadwrite.lib;evr.lib;dxva2.lib;mfuuid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <CustomBuildStep>
       <Command>
@@ -261,9 +261,9 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Analyze|x64'">
     <ClCompile>
-      <PreprocessorDefinitions>_GLFW_WIN32;WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>vendor</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp14</LanguageStandard>
+      <PreprocessorDefinitions>_GLFW_WIN32;WINDOWS;PA_USE_DS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>vendor;deps/portaudio/include;deps/portaudio/src/common;deps/portaudio/src/hostapi/dsound;deps/portaudio/src/os/win;deps/libaudiodecoder/include</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <UndefinePreprocessorDefinitions>%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
       <ForcedIncludeFiles>
       </ForcedIncludeFiles>
@@ -273,7 +273,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;mf.lib;mfplat.lib;mfreadwrite.lib;evr.lib;dxva2.lib;mfuuid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <CustomBuildStep>
       <Command>
@@ -290,9 +290,9 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <PreprocessorDefinitions>_GLFW_WIN32;WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>vendor</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp14</LanguageStandard>
+      <PreprocessorDefinitions>_GLFW_WIN32;WINDOWS;PA_USE_DS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>vendor;deps/portaudio/include;deps/portaudio/src/common;deps/portaudio/src/hostapi/dsound;deps/portaudio/src/os/win;deps/libaudiodecoder/include</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <UndefinePreprocessorDefinitions>%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <ForcedIncludeFiles>
@@ -306,7 +306,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;mf.lib;mfplat.lib;mfreadwrite.lib;evr.lib;dxva2.lib;mfuuid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <CustomBuildStep>
       <Command>
@@ -322,8 +322,30 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="deps\libaudiodecoder\src\audiodecoderbase.cpp" />
+    <ClCompile Include="deps\libaudiodecoder\src\audiodecodermediafoundation.cpp" />
+    <ClCompile Include="deps\portaudio\src\common\pa_allocation.c" />
+    <ClCompile Include="deps\portaudio\src\common\pa_converters.c" />
+    <ClCompile Include="deps\portaudio\src\common\pa_cpuload.c" />
+    <ClCompile Include="deps\portaudio\src\common\pa_debugprint.c" />
+    <ClCompile Include="deps\portaudio\src\common\pa_dither.c" />
+    <ClCompile Include="deps\portaudio\src\common\pa_front.c" />
+    <ClCompile Include="deps\portaudio\src\common\pa_process.c" />
+    <ClCompile Include="deps\portaudio\src\common\pa_ringbuffer.c" />
+    <ClCompile Include="deps\portaudio\src\common\pa_stream.c" />
+    <ClCompile Include="deps\portaudio\src\common\pa_trace.c" />
+    <ClCompile Include="deps\portaudio\src\hostapi\dsound\pa_win_ds.c" />
+    <ClCompile Include="deps\portaudio\src\hostapi\dsound\pa_win_ds_dynlink.c" />
+    <ClCompile Include="deps\portaudio\src\os\win\pa_win_coinitialize.c" />
+    <ClCompile Include="deps\portaudio\src\os\win\pa_win_hostapis.c" />
+    <ClCompile Include="deps\portaudio\src\os\win\pa_win_util.c" />
+    <ClCompile Include="deps\portaudio\src\os\win\pa_win_waveformat.c" />
+    <ClCompile Include="deps\portaudio\src\os\win\pa_win_wdmks_utils.c" />
+    <ClCompile Include="deps\portaudio\src\os\win\pa_x86_plain_converters.c" />
+    <ClCompile Include="src\audio.cpp" />
     <ClCompile Include="src\common.cpp" />
     <ClCompile Include="src\content.cpp" />
+    <ClCompile Include="src\debug\audioManagerRenderer.cpp" />
     <ClCompile Include="src\game\unit.cpp" />
     <ClCompile Include="src\game.cpp" />
     <ClCompile Include="src\game\basicRenderers.cpp" />
@@ -354,8 +376,33 @@
     <ClCompile Include="vendor\stb\image.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="deps\libaudiodecoder\include\audiodecoder.h" />
+    <ClInclude Include="deps\libaudiodecoder\include\audiodecoderbase.h" />
+    <ClInclude Include="deps\libaudiodecoder\include\audiodecodercoreaudio.h" />
+    <ClInclude Include="deps\libaudiodecoder\include\audiodecodermediafoundation.h" />
+    <ClInclude Include="deps\portaudio\src\common\pa_allocation.h" />
+    <ClInclude Include="deps\portaudio\src\common\pa_converters.h" />
+    <ClInclude Include="deps\portaudio\src\common\pa_cpuload.h" />
+    <ClInclude Include="deps\portaudio\src\common\pa_debugprint.h" />
+    <ClInclude Include="deps\portaudio\src\common\pa_dither.h" />
+    <ClInclude Include="deps\portaudio\src\common\pa_endianness.h" />
+    <ClInclude Include="deps\portaudio\src\common\pa_gitrevision.h" />
+    <ClInclude Include="deps\portaudio\src\common\pa_hostapi.h" />
+    <ClInclude Include="deps\portaudio\src\common\pa_memorybarrier.h" />
+    <ClInclude Include="deps\portaudio\src\common\pa_process.h" />
+    <ClInclude Include="deps\portaudio\src\common\pa_ringbuffer.h" />
+    <ClInclude Include="deps\portaudio\src\common\pa_stream.h" />
+    <ClInclude Include="deps\portaudio\src\common\pa_trace.h" />
+    <ClInclude Include="deps\portaudio\src\common\pa_types.h" />
+    <ClInclude Include="deps\portaudio\src\common\pa_util.h" />
+    <ClInclude Include="deps\portaudio\src\hostapi\dsound\pa_win_ds_dynlink.h" />
+    <ClInclude Include="deps\portaudio\src\os\win\pa_win_coinitialize.h" />
+    <ClInclude Include="deps\portaudio\src\os\win\pa_win_wdmks_utils.h" />
+    <ClInclude Include="deps\portaudio\src\os\win\pa_x86_plain_converters.h" />
+    <ClInclude Include="src\audio.h" />
     <ClInclude Include="src\common.h" />
     <ClInclude Include="src\content.h" />
+    <ClInclude Include="src\debug\audioManagerRenderer.h" />
     <ClInclude Include="src\game\basicRenderers.h" />
     <ClInclude Include="src\game\unit.h" />
     <ClInclude Include="src\entityCreator.h" />

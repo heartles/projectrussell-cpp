@@ -11,6 +11,7 @@ Log(string s)
 {
 #ifdef WINDOWS
     OutputDebugString(s.c_str());
+	OutputDebugString("\n");
 #endif
     printf("%s\n", s.c_str());
 }

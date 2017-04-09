@@ -34,7 +34,7 @@ struct Order
     };
 
     inline Order()
-      : TilePos({}){};
+      : TilePos(ivec2{}){};
 };
 
 struct Unit

@@ -1,0 +1,6 @@
+[submodule "portaudio"]
+	path = deps/portaudio
+	url = https://git.assembla.com/portaudio.git
+[submodule "libaudiodecoder"]
+	path = deps/libaudiodecoder
+	url = https://github.com/asantoni/libaudiodecoder/
