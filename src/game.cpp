@@ -171,7 +171,7 @@ LoadLevel(const std::string &fileLoc, Game &info)
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
     }
 
-    info.Add(PlayerController{});
+    info.Add(PlayerController{info});
     info.Add(TilemapRenderer{});
 }
 

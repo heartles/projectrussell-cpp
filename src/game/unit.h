@@ -18,7 +18,8 @@ struct Mirage
     Sprite Spr = { 0 };
     ivec2 TilePos;
 
-    Unit *Original;
+	float StdActionRemaining = 6;
+	float MoveActionRemaining = 6;
 };
 
 struct Order
@@ -26,6 +27,8 @@ struct Order
     ActionType Type = ActionType::None;
     Order *Next = nullptr;
     Mirage Mirage = { 0 };
+
+	Unit *Obj;
 
     union
     {
@@ -37,11 +40,8 @@ struct Order
       : TilePos(ivec2{}){};
 };
 
-struct Unit
+struct Unit : public Mirage
 {
-    Sprite Spr = { 0 };
-    ivec2 TilePos = {};
-
     // Linked list of orders to process
     Order *Orders = nullptr;
     int ID;

@@ -26,7 +26,13 @@ class PlayerController : public Updateable, public Renderable
     void selectUnit(Unit *u);
     void deselectUnit(Unit *u);
 
+	// Sounds
+	using Sound_t = const Sound *;
+	Sound_t _snd_no;
+
   public:
+	PlayerController(Game &);
+
     virtual void Update(Game &) override;
     virtual void Draw(Game &) override;
     virtual RenderOrder RequestedDrawOrder() override;

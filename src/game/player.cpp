@@ -7,6 +7,11 @@
 // TODO
 #include <GLFW/glfw3.h>
 
+PlayerController::PlayerController(Game &g)
+{
+	_snd_no = g.Content.LoadSound("/content/no.wav");
+}
+
 ivec2
 GetTilePos(const Game &engine, vec2 screen)
 {
@@ -42,6 +47,26 @@ PlayerController::deselectUnit(Unit *u)
     _availableActions.clear();
 }
 
+Order *
+GetLastOrder(Unit *u)
+{
+	Order **v = &u->Orders;
+	Order *prevOrder = nullptr;
+	while (*v) {
+		prevOrder = *v;
+		v = &(*v)->Next;
+	}
+
+	return prevOrder;
+}
+
+Mirage *
+GetLastMirage(Unit *u)
+{
+	auto o = GetLastOrder(u);
+	return (o == nullptr) ? static_cast<Mirage *>(u) : &o->Mirage;
+}
+
 void
 EnqueueOrder(Unit *u, Order *o)
 {
@@ -50,18 +75,6 @@ EnqueueOrder(Unit *u, Order *o)
     while (*valToSet) {
         prevOrder = *valToSet;
         valToSet = &(*valToSet)->Next;
-    }
-
-    if (!prevOrder) {
-        o->Mirage = Mirage{ u->Spr, u->TilePos, u };
-    } else {
-        o->Mirage = prevOrder->Mirage;
-    }
-
-    switch (o->Type) {
-        case ActionType::Move: {
-            o->Mirage.TilePos = o->TilePos;
-        } break;
     }
 
     *valToSet = o;
@@ -117,17 +130,44 @@ PlayerController::Update(Game &Engine)
             if (_selectedAction) {
                 switch (_selectedAction->Type) {
                     case ActionType::Move: {
+						const auto m = GetLastMirage(_selected);
+						int tileDiff = std::abs(mousePos.x - m->TilePos.x) +
+							std::abs(mousePos.y - m->TilePos.y);
+
+						if (tileDiff > m->MoveActionRemaining + m->StdActionRemaining) {
+							Engine.Audio.PlaySound(_snd_no);
+							break;
+						}
+
                         Order *order = Engine.Level.Orders.Allocate();
                         order->Type = ActionType::Move;
                         order->TilePos = mousePos;
+						order->Mirage = *m;
+						order->Mirage.TilePos = mousePos;
+						
+						order->Mirage.MoveActionRemaining -= tileDiff;
+						if (order->Mirage.MoveActionRemaining < 0) {
+							order->Mirage.StdActionRemaining += order->Mirage.MoveActionRemaining;
+							order->Mirage.MoveActionRemaining = 0;
+						}
+
                         EnqueueOrder(_selected, order);
                     } break;
                     case ActionType::Attack: {
                         for (auto &u : Engine.Level.Units) {
                             if (u.TilePos == mousePos) {
+								const auto m = GetLastMirage(_selected);
+								if (m->StdActionRemaining < 6) {
+									Engine.Audio.PlaySound(_snd_no);
+									break;
+								}
+
                                 Order *order = Engine.Level.Orders.Allocate();
                                 order->Type = ActionType::Attack;
                                 order->Other = &u;
+								order->Mirage = *m;
+								order->Mirage.StdActionRemaining -= 6;
+
                                 EnqueueOrder(_selected, order);
                             }
                         }
@@ -138,10 +178,28 @@ PlayerController::Update(Game &Engine)
     }
 
     if (Engine.MousePressed(1) && _selected) {
-        Order *order = Engine.Level.Orders.Allocate();
-        order->Type = ActionType::Move;
-        order->TilePos = mousePos;
-        EnqueueOrder(_selected, order);
+		const auto m = GetLastMirage(_selected);
+		int tileDiff = std::abs(mousePos.x - m->TilePos.x) +
+			std::abs(mousePos.y - m->TilePos.y);
+
+		if (tileDiff > m->MoveActionRemaining + m->StdActionRemaining) {
+			Engine.Audio.PlaySound(_snd_no);
+			return;
+		}
+
+		Order *order = Engine.Level.Orders.Allocate();
+		order->Type = ActionType::Move;
+		order->TilePos = mousePos;
+		order->Mirage = *m;
+		order->Mirage.TilePos = mousePos;
+
+		order->Mirage.MoveActionRemaining -= tileDiff;
+		if (order->Mirage.MoveActionRemaining < 0) {
+			order->Mirage.StdActionRemaining += order->Mirage.MoveActionRemaining;
+			order->Mirage.MoveActionRemaining = 0;
+		}
+
+		EnqueueOrder(_selected, order);
     }
 }
 
@@ -189,6 +247,19 @@ PlayerController::Draw(Game &Engine)
             DrawMirage(&Engine, o.Mirage);
             orders = &o.Next;
         }
+
+		const auto m = GetLastMirage(_selected);
+		Engine.Screen.RenderText("Move: " + std::to_string(m->MoveActionRemaining),
+			font,
+			{ 600, 140 },
+			{ 1, 1 },
+			Colors::Green);
+
+		Engine.Screen.RenderText("Std:  " + std::to_string(m->StdActionRemaining),
+			font,
+			{ 600, 100 },
+			{ 1, 1 },
+			Colors::Red);
     }
 }
 
@@ -223,7 +294,10 @@ ProcessTurn(Game &Engine)
             auto nextO = o->Next;
             Engine.Level.Orders.Free(o);
             o = nextO;
+
         }
+		u.StdActionRemaining = 6;
+		u.MoveActionRemaining = 6;
         u.Orders = nullptr;
     }
 

@@ -90,7 +90,7 @@ ContentManager::LoadSound(const std::string &f)
 	std::string filename = _dataDir + f;
 
 	AudioDecoder decoder{ filename };
-	assert(decoder.open() == 0); //TODO: check return?
+	assert(decoder.open() == 0); // TODO: Graceful error handling
 
 	int samplesToRead = decoder.numSamples();
 	decoder.seek(0);

@@ -30,6 +30,8 @@ GetTileCenter(const ivec2 &v)
 Unit::Unit()
 {
     ID = _idCount++;
+	StdActionRemaining = 6;
+	MoveActionRemaining = 6;
 }
 
 Unit::Unit(Sprite spr, ivec2 pos)
