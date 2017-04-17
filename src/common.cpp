@@ -4,14 +4,12 @@
 #include <Windows.h>
 #endif
 
-using namespace std;
-
 void
-Log(string s)
+Log(const std::string &s)
 {
 #ifdef WINDOWS
     OutputDebugString(s.c_str());
 	OutputDebugString("\n");
 #endif
-    printf("%s\n", s.c_str());
+    std::printf("%s\n", s.c_str());
 }

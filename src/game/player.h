@@ -11,8 +11,7 @@
 
 struct ActionButton
 {
-    ActionType Type = ActionType::None;
-    std::string Name{};
+	Action *Action;
     Rectangle Box = { 0 };
 };
 
@@ -21,7 +20,7 @@ class PlayerController : public Updateable, public Renderable
     Unit *_selected = nullptr;
 
     ActionButton *_selectedAction = nullptr;
-    std::vector<ActionButton> _availableActions{ 8 };
+	std::vector<ActionButton> _availableActions{};
 
     void selectUnit(Unit *u);
     void deselectUnit(Unit *u);

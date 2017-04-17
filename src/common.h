@@ -63,7 +63,7 @@ sizeof_vector(std::vector<T> vector)
     return vector.size() * sizeof(T);
 }
 
-void Log(std::string s);
+void Log(const std::string &s);
 
 inline std::string
 ToLower(const std::string &s)

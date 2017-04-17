@@ -103,7 +103,7 @@ class Font
     {
     }
 
-    void RenderText(std::string, mat3 matrix, vec4 color) const;
+    void RenderText(const std::string &str, mat3 matrix, vec4 color) const;
 };
 
 struct Game;
@@ -270,14 +270,14 @@ struct Tileset
     }
 };
 
-Texture DEBUG_LoadTexture(std::string filename);
+Texture DEBUG_LoadTexture(const std::string &filename);
 
-void SetUniform(std::string name, const mat3 &value);
-void SetUniform(std::string name, const vec4 &value);
+void SetUniform(const std::string &name, const mat3 &value);
+void SetUniform(const std::string &name, const vec4 &value);
 
 void DEBUG_DrawTexture(const Texture *tex,
                        mat3 projection,
                        Rectangle texPart,
                        vec4 color);
 
-Font DEBUG_LoadFont(std::string filename, int pxSize, const Shader *s);
+Font DEBUG_LoadFont(const std::string &filename, int pxSize, const Shader *s);

@@ -14,7 +14,7 @@ using namespace std;
 FT_Library Freetype = 0;
 
 Font
-DEBUG_LoadFont(std::string filename, int pxSize, const Shader *s)
+DEBUG_LoadFont(const std::string &filename, int pxSize, const Shader *s)
 {
     if (!Freetype) {
         auto err = FT_Init_FreeType(&Freetype);
@@ -101,7 +101,7 @@ const std::array<const vec2, 4> uvFullImage{ {
 } };
 
 void
-Font::RenderText(std::string text, mat3 matrix, vec4 color) const
+Font::RenderText(const std::string &text, mat3 matrix, vec4 color) const
 {
     _shader->Apply();
     vec2 pos = {};
@@ -127,7 +127,7 @@ Font::RenderText(std::string text, mat3 matrix, vec4 color) const
 }
 
 void
-OrthoView::RenderText(std::string text,
+OrthoView::RenderText(const std::string text,
                       const Font *f,
                       vec2 pos,
                       vec2 scale,
@@ -137,7 +137,7 @@ OrthoView::RenderText(std::string text,
 }
 
 Texture
-DEBUG_LoadTexture(std::string filename)
+DEBUG_LoadTexture(const std::string &filename)
 {
     Log("loading texture " + filename);
     Texture s;
@@ -249,7 +249,7 @@ initializeBuffers()
 }
 
 internal_function GLuint
-getUniformLocation(std::string name)
+getUniformLocation(const std::string &name)
 {
     GLuint prog;
     glGetIntegerv(GL_CURRENT_PROGRAM, (GLint *)&prog);
@@ -258,14 +258,14 @@ getUniformLocation(std::string name)
 }
 
 void
-SetUniform(std::string name, const mat3 &value)
+SetUniform(const std::string &name, const mat3 &value)
 {
     auto loc = getUniformLocation(name);
     glUniformMatrix3fv(loc, 1, GL_FALSE, (GLfloat *)&value);
 }
 
 void
-SetUniform(std::string name, const vec4 &value)
+SetUniform(const std::string &name, const vec4 &value)
 {
     auto loc = getUniformLocation(name);
     glUniform4f(loc, value.x, value.y, value.z, value.w);

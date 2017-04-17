@@ -158,9 +158,32 @@ struct ivec2
     {
         return { static_cast<float>(x), static_cast<float>(y) };
     }
+
+	inline float Magnitude() const
+	{
+		return std::sqrt(static_cast<float>(x*x) + static_cast<float>(y*y));
+	}
 };
 
-constexpr bool
+inline constexpr ivec2
+operator-(const ivec2 &v)
+{
+	return { -v.x, -v.y };
+}
+
+inline constexpr ivec2
+operator+(const ivec2 &v1, const ivec2 &v2)
+{
+	return { v1.x + v2.x, v1.y + v2.y };
+}
+
+inline constexpr ivec2
+operator-(const ivec2 &v1, const ivec2 &v2)
+{
+	return v1 + -v2;
+}
+
+inline constexpr bool
 operator==(const ivec2 &v1, const ivec2 &v2)
 {
     return (v1.x == v2.x) && (v1.y == v2.y);

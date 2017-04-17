@@ -10,6 +10,7 @@
 PlayerController::PlayerController(Game &g)
 {
 	_snd_no = g.Content.LoadSound("/content/no.wav");
+	_availableActions.reserve(8);
 }
 
 ivec2
@@ -30,13 +31,13 @@ PlayerController::selectUnit(Unit *u)
 {
     _selected = u;
     _selectedAction = nullptr;
-    _availableActions.assign(
-      { { ActionType::Move,
-          "Move",
-          Rectangle::FromCorner({ 60, 60 }, 120, 60) },
-        { ActionType::Attack,
-          "Attack",
-          Rectangle::FromCorner({ 200, 60 }, 120, 60) } });
+	float buttonX = 60;
+	for (auto &a : u->PossibleActions) {
+		_availableActions.push_back({ &a,
+			Rectangle::FromCorner({ buttonX, 60 }, 130, 60)
+		});
+		buttonX += 140;
+	}
 }
 
 void
@@ -88,7 +89,7 @@ PlayerController::Update(Game &Engine)
       GetTilePos(Engine, { Engine.Input.MouseX, Engine.Input.MouseY });
     if (Engine.MousePressed(0)) {
         bool clickedOnUnit = false;
-        if (!_selectedAction || _selectedAction->Type == ActionType::None) {
+        if (!_selectedAction || std::get_if<NullAction>(_selectedAction->Action)) {
             for (auto &u : Engine.Level.Units) {
                 if (u.TilePos == mousePos) {
                     if (&u != _selected) {
@@ -128,51 +129,56 @@ PlayerController::Update(Game &Engine)
             }
 
             if (_selectedAction) {
-                switch (_selectedAction->Type) {
-                    case ActionType::Move: {
+				std::visit(make_overload(
+					[](NullAction) {},
+					[&](const MoveAction &)
+					{
 						const auto m = GetLastMirage(_selected);
 						int tileDiff = std::abs(mousePos.x - m->TilePos.x) +
 							std::abs(mousePos.y - m->TilePos.y);
 
 						if (tileDiff > m->MoveActionRemaining + m->StdActionRemaining) {
 							Engine.Audio.PlaySound(_snd_no);
-							break;
+							return;
 						}
 
-                        Order *order = Engine.Level.Orders.Allocate();
-                        order->Type = ActionType::Move;
-                        order->TilePos = mousePos;
+						Order *order = Engine.Level.Orders.Allocate();
+						order->Type = ActionType::Move;
+						order->TilePos = mousePos;
 						order->Mirage = *m;
 						order->Mirage.TilePos = mousePos;
-						
+
 						order->Mirage.MoveActionRemaining -= tileDiff;
 						if (order->Mirage.MoveActionRemaining < 0) {
 							order->Mirage.StdActionRemaining += order->Mirage.MoveActionRemaining;
 							order->Mirage.MoveActionRemaining = 0;
 						}
 
-                        EnqueueOrder(_selected, order);
-                    } break;
-                    case ActionType::Attack: {
-                        for (auto &u : Engine.Level.Units) {
-                            if (u.TilePos == mousePos) {
+						EnqueueOrder(_selected, order);
+					},
+					[&](const AttackAction &a) 
+					{
+						for (auto &u : Engine.Level.Units) {
+							if (u.TilePos == mousePos) {
 								const auto m = GetLastMirage(_selected);
-								if (m->StdActionRemaining < 6) {
+								const auto d = (u.TilePos - _selected->TilePos).Magnitude();
+								if (m->StdActionRemaining < 6 || d > a.Range) {
 									Engine.Audio.PlaySound(_snd_no);
-									break;
+									return;
 								}
 
-                                Order *order = Engine.Level.Orders.Allocate();
-                                order->Type = ActionType::Attack;
-                                order->Other = &u;
+								Order *order = Engine.Level.Orders.Allocate();
+								order->Type = ActionType::Attack;
+								order->Other = &u;
 								order->Mirage = *m;
 								order->Mirage.StdActionRemaining -= 6;
 
-                                EnqueueOrder(_selected, order);
-                            }
-                        }
-                    } break;
-                }
+								EnqueueOrder(_selected, order);
+							}
+						}
+					}
+				),
+				*_selectedAction->Action);
             }
         }
     }
@@ -233,7 +239,7 @@ PlayerController::Draw(Game &Engine)
 
             Engine.Screen.DrawRectangle(button.Box, color);
             Engine.Screen.RenderText(
-              button.Name,
+				std::visit([](const auto &val) -> const std::string & { return val.Name(); }, *button.Action),
               font,
               { button.Box.X - button.Box.HalfWidth / 2, button.Box.Y },
               { 1, 1 },
