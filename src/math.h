@@ -471,3 +471,7 @@ Round(float f)
 namespace Identity {
     const mat3 Mat3 = mat3::FromCols({ 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 });
 }
+
+int AbsComponentSum(const ivec2 &);
+float AbsComponentSum(const vec2 &);
+float AbsComponentSum(const vec3 &);

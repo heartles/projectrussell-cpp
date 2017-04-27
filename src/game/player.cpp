@@ -71,14 +71,13 @@ GetLastMirage(Unit *u)
 void
 EnqueueOrder(Unit *u, Order *o)
 {
-    Order **valToSet = &u->Orders;
-    Order *prevOrder = nullptr;
-    while (*valToSet) {
-        prevOrder = *valToSet;
-        valToSet = &(*valToSet)->Next;
-    }
-
-    *valToSet = o;
+	auto last = GetLastOrder(u);
+	if (last == nullptr)
+		u->Orders = o;
+	else {
+		last->Next = o;
+		o->Last = last;
+	}
 }
 
 void
@@ -124,14 +123,14 @@ PlayerController::Update(Game &Engine)
             const auto endTurnButton =
               Rectangle::FromCorner({ 1920 - 180, 60 }, 150, 60);
             if (endTurnButton.Contains(screenMousePos)) {
-                ProcessTurn(Engine);
+                BeginTurnProcessing(Engine);
                 return;
             }
 
             if (_selectedAction) {
 				std::visit(make_overload(
 					[](NullAction) {},
-					[&](const MoveAction &)
+					[&](const MoveAction &action)
 					{
 						const auto m = GetLastMirage(_selected);
 						int tileDiff = std::abs(mousePos.x - m->TilePos.x) +
@@ -143,8 +142,7 @@ PlayerController::Update(Game &Engine)
 						}
 
 						Order *order = Engine.Level.Orders.Allocate();
-						order->Type = ActionType::Move;
-						order->TilePos = mousePos;
+						order->Data = MoveOrder{ mousePos, &action };
 						order->Mirage = *m;
 						order->Mirage.TilePos = mousePos;
 
@@ -168,8 +166,7 @@ PlayerController::Update(Game &Engine)
 								}
 
 								Order *order = Engine.Level.Orders.Allocate();
-								order->Type = ActionType::Attack;
-								order->Other = &u;
+								order->Data = AttackOrder{ u.ID(), &a };
 								order->Mirage = *m;
 								order->Mirage.StdActionRemaining -= 6;
 
@@ -184,6 +181,18 @@ PlayerController::Update(Game &Engine)
     }
 
     if (Engine.MousePressed(1) && _selected) {
+		const ActionButton *a = std::find_if(_availableActions.begin(), _availableActions.end(), 
+			[](const ActionButton &b){
+				return static_cast<bool>(std::get_if<MoveAction>(b.Action));
+		}).operator->();
+
+		const auto action = std::get_if<MoveAction>(a->Action);
+
+		if (!a) {
+			Engine.Audio.PlaySound(_snd_no);
+			return; //TODO: not return
+		}
+
 		const auto m = GetLastMirage(_selected);
 		int tileDiff = std::abs(mousePos.x - m->TilePos.x) +
 			std::abs(mousePos.y - m->TilePos.y);
@@ -194,8 +203,7 @@ PlayerController::Update(Game &Engine)
 		}
 
 		Order *order = Engine.Level.Orders.Allocate();
-		order->Type = ActionType::Move;
-		order->TilePos = mousePos;
+		order->Data = MoveOrder{ mousePos, action };
 		order->Mirage = *m;
 		order->Mirage.TilePos = mousePos;
 
@@ -273,39 +281,4 @@ RenderOrder
 PlayerController::RequestedDrawOrder()
 {
     return RenderOrder(10);
-}
-
-void
-ProcessTurn(Game &Engine)
-{
-    Log("Processing Turn...");
-    for (auto &u : Engine.Level.Units) {
-        Order *o = u.Orders;
-
-        Log("\tProcessing orders for unit " + std::to_string(u.ID));
-        while (o) {
-            switch (o->Type) {
-                case ActionType::Move: {
-                    Log("\t\tExecuting Move from " + std::to_string(u.TilePos) +
-                        " to " + std::to_string(o->TilePos));
-                    u.TilePos = o->TilePos;
-                } break;
-                case ActionType::Attack: {
-                    const auto otherUnitID = o->Other->ID;
-                    Log("\t\tAttack made against unit " +
-                        std::to_string(otherUnitID));
-                } break;
-            }
-
-            auto nextO = o->Next;
-            Engine.Level.Orders.Free(o);
-            o = nextO;
-
-        }
-		u.StdActionRemaining = 6;
-		u.MoveActionRemaining = 6;
-        u.Orders = nullptr;
-    }
-
-    Log("\tDone processing turn.");
 }

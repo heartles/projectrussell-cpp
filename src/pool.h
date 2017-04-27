@@ -38,7 +38,12 @@ class Pool
 	mutable size_t _size = 0;
 
   public:
-    class it
+    class it : public std::iterator<
+		std::forward_iterator_tag,
+		T,
+		size_t,
+		T *,
+		T &>
     {
         friend class Pool<T>;
         Pool<T> *_pool;
@@ -55,6 +60,8 @@ class Pool
         T &operator*() { return _pool->_pool[_bucketIndex][_index].val; }
 
         operator T *() { return &_pool->_pool[_bucketIndex][_index].val; }
+
+        operator bool() { return operator T *(); }
 
         T *operator->() { return operator T *(); }
 

@@ -2,7 +2,7 @@
 
 #include "../game.h"
 
-int Unit::_idCount;
+UnitID Unit::s_idCount = 1;
 
 void
 DrawUnit(Game *engine, const Unit &unit)
@@ -29,7 +29,7 @@ GetTileCenter(const ivec2 &v)
 
 Unit::Unit()
 {
-    ID = _idCount++;
+    _id = s_idCount++;
 	StdActionRemaining = 6;
 	MoveActionRemaining = 6;
 }
@@ -38,5 +38,5 @@ Unit::Unit(Sprite spr, ivec2 pos)
 {
     Spr = spr;
     TilePos = pos;
-    ID = _idCount++;
+    _id = s_idCount++;
 }

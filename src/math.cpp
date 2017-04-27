@@ -38,3 +38,21 @@ Rotate(float amount)
 
     return output;
 }
+
+int
+AbsComponentSum(const ivec2 &v)
+{
+	return abs(v.x) + abs(v.y);
+}
+
+float
+AbsComponentSum(const vec2 &v)
+{
+	return abs(v.x) + abs(v.y);
+}
+
+float
+AbsComponentSum(const vec3 &v)
+{
+	return abs(v.x) + abs(v.y) + abs(v.z);
+}

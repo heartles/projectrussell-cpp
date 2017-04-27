@@ -72,9 +72,33 @@ struct Level
 
     Pool<Unit> Units;
     Pool<Order> Orders;
+
+	inline Unit *GetUnit(UnitID id)
+	{
+        assert(id);
+		return std::find_if(Units.begin(), Units.end(), 
+			[=](const Unit &u) {
+				return u.ID() == id;
+			});
+	}
+
+    inline UnitID GetNext(UnitID id)
+    {
+        assert(id);
+        auto u = std::find_if(Units.begin(), Units.end(),
+            [=](const Unit &u) {
+            return u.ID() == id;
+        });
+        if (!u) return 0;
+
+        u++;
+        if (u == Units.end()) return 0;
+
+        return u->ID();
+    }
 };
 
-void ProcessTurn(Game &);
+void BeginTurnProcessing(Game &);
 
 struct Input
 {
@@ -147,6 +171,17 @@ struct Game
       : Content(dataDir)
       , ShouldClose(false)
     {
+    }
+
+    template <typename T>
+    T *GetRenderable()
+    {
+        for (auto &v : Renderables) {
+            auto val = dynamic_cast<T *>(v.get());
+            if (val) return val;
+        }
+
+        return nullptr;
     }
 };
 

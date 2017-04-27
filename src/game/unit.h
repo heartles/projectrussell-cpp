@@ -6,14 +6,8 @@
 #include "../graphics.h"
 #include "../math.h"
 
-enum class ActionType
-{
-    None = 0,
-    Move,
-    Attack
-};
+using UnitID = uint64_t;
 
-struct Unit;
 struct Mirage
 {
     Sprite Spr = { 0 };
@@ -21,24 +15,6 @@ struct Mirage
 
 	float StdActionRemaining = 6;
 	float MoveActionRemaining = 6;
-};
-
-struct Order
-{
-    ActionType Type = ActionType::None;
-    Order *Next = nullptr;
-    Mirage Mirage = { 0 };
-
-	Unit *Obj;
-
-    union
-    {
-        ivec2 TilePos;
-        Unit *Other;
-    };
-
-    inline Order()
-      : TilePos(ivec2{}){};
 };
 
 class NullAction : public std::monostate
@@ -86,24 +62,101 @@ using Action = std::variant<NullAction, MoveAction, AttackAction>;
 
 const std::vector<Action> DefaultActions{
 	MoveAction{},
-	AttackAction{12, 1.5f, "Melee"},
-	AttackAction{8, 15, "Ranged"}
+	AttackAction{ 12, 1.5f, "Melee" },
+	AttackAction{ 8, 15, "Ranged" }
 };
 
-struct Unit : public Mirage
+struct NullOrder : public std::monostate {};
+
+struct MoveOrder
 {
+	ivec2 TargetPos;
+	const MoveAction *Action;
+};
+
+struct AttackOrder
+{
+	UnitID Target;
+	const AttackAction *Action;
+};
+
+using OrderData = std::variant<NullOrder, MoveOrder, AttackOrder>;
+
+class Unit;
+struct Order
+{
+    Order *Next = nullptr;
+	Order *Last = nullptr;
+
+    // Mirage stores a temporary look at the state of the Unit
+	// after the order is performed.
+	Mirage Mirage = { 0 };
+
+	UnitID Obj;
+
+	struct it
+	{
+		Order *_o;
+
+		inline it(Order *o) : _o(o) {}
+
+		inline Order &operator*() { return *_o; }
+		inline Order *operator->() { return _o; }
+		
+		inline it &operator++() 
+		{ 
+			_o = _o->Next; 
+			return *this;
+		}
+		
+		inline it operator++(int)
+		{
+			return { _o->Next };
+		}
+
+		inline bool operator==(const it &other)
+		{
+			return other._o == _o;
+		}
+
+		inline bool operator!=(const it &other)
+		{
+			return !(*this == other);
+		}
+	};
+
+	OrderData Data{};
+};
+
+class Unit : public Mirage
+{
+	UnitID _id;
+public:
+	static constexpr UnitID NullID = 0;
 	std::vector<Action> PossibleActions{ DefaultActions };
 
 	// Linked list of orders to process
     Order *Orders = nullptr;
-    int ID;
+	inline Order::it begin()
+	{
+		return { Orders };
+	}
+	
+	inline Order::it end()
+	{
+		return { nullptr };
+	}
 
     Unit();
     Unit(Sprite spr, ivec2 pos);
     Unit(const Unit &) = default;
+	inline UnitID ID() const
+	{
+		return _id;
+	}
 
   private:
-    static int _idCount;
+    static UnitID s_idCount;
 };
 
 struct Game;
