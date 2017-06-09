@@ -83,7 +83,7 @@ UnitRenderer::Draw(Game &Engine)
             Unit *u = &unit;
             while (_unitRendering && !u->Orders) {
                 u = Engine.Level.GetUnit(_unitRendering);
-                _unitRendering = Engine.Level.GetNext(unit.ID());
+                _unitRendering = Engine.Level.GetNext(u->ID());
             }
         }
 	}
