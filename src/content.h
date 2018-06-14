@@ -16,7 +16,7 @@ struct FontDesc
 {
     std::string Filename;
     int PxSize;
-    const Shader *Shader;
+    const ::Shader *Shader;
 };
 
 struct FontDescCmp

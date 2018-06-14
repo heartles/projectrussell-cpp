@@ -3,3 +3,5 @@
 *.user
 /x64
 *.vspx
+/build
+.vscode

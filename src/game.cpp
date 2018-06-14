@@ -52,7 +52,7 @@ Game_Init(Game &info)
 
     string fileLoc = info.Content.ResolvePath("/content/main.json");
 
-	snd = info.Audio.PlaySound(info.Content.LoadSound("/content/song.mp3"));
+	snd = info.Audio.PlaySound(info.Content.LoadSound("/content/song.wav"));
 	
 	info.Add(AudioManager::DEBUG_Renderer{});
 
@@ -198,7 +198,7 @@ ParseTileLayer(const Json::Value &layer, Level &level)
         }
 
         if (!tilesetPtr) {
-            throw std::exception("no matching tileset for tileid");
+            throw std::logic_error("no matching tileset for tileid");
         }
         auto &tileset = *tilesetPtr;
 
@@ -252,7 +252,7 @@ ParseTileLayer(const Json::Value &layer, Level &level)
 void
 Game_Update(Game &info)
 {
-    if (info.Input.Keyboard[GLFW_KEY_ESCAPE])
+    if (info.CurrentInput.Keyboard[GLFW_KEY_ESCAPE])
         info.ShouldClose = true;
 
     for (auto c : info.Updateables) {

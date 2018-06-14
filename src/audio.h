@@ -7,6 +7,7 @@
 #include <memory>
 
 #include <portaudio.h>
+#include <sndfile.h>
 
 #include "pool.h"
 #include "common.h"
@@ -48,7 +49,7 @@ public:
 	ActiveSound &operator=(const ActiveSound &other) = default;
 	ActiveSound &operator=(ActiveSound &&) = default;
 	
-	inline const Sound *Sound() const
+	inline const struct Sound *Playing() const
 	{
 		return _sound;
 	}

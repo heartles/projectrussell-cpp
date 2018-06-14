@@ -2,6 +2,7 @@
 
 #include <array>
 #include <string>
+#include <memory>
 
 #include <json/json.h>
 
@@ -114,7 +115,7 @@ struct Game
 
     float DT;
     Input OldInput;
-    Input Input;
+    Input CurrentInput;
     bool ShouldClose;
 
     vec4 ClearColor;
@@ -122,7 +123,7 @@ struct Game
     OrthoView View;
     OrthoView Screen;
 
-    Level Level;
+    ::Level Level;
 
     ContentManager Content;
 	AudioManager Audio;
@@ -138,7 +139,7 @@ struct Game
                       "Unable to convert type T to any of the following: "
                       "Renderable, Updateable");
 
-        auto val = make_shared<T>(std::move(v));
+        auto val = std::make_shared<T>(std::move(v));
 
         // TODO: We know at compile time which interfaces T can convert to,
         // can we do the actual cast at compile time instead of runtime?
@@ -159,12 +160,12 @@ struct Game
 
     inline bool KeyPressed(int id) const
     {
-        return Input.Keyboard[id] && !OldInput.Keyboard[id];
+        return CurrentInput.Keyboard[id] && !OldInput.Keyboard[id];
     }
 
     inline bool MousePressed(int id) const
     {
-        return Input.Mouse[id] && !OldInput.Mouse[id];
+        return CurrentInput.Mouse[id] && !OldInput.Mouse[id];
     }
 
     inline Game(std::string dataDir)

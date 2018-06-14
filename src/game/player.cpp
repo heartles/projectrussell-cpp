@@ -85,7 +85,7 @@ PlayerController::Update(Game &Engine)
 {
     const bool m = Engine.MousePressed(0);
     const auto mousePos =
-      GetTilePos(Engine, { Engine.Input.MouseX, Engine.Input.MouseY });
+      GetTilePos(Engine, { Engine.CurrentInput.MouseX, Engine.CurrentInput.MouseY });
     if (Engine.MousePressed(0)) {
         bool clickedOnUnit = false;
         if (!_selectedAction || std::get_if<NullAction>(_selectedAction->Action)) {
@@ -104,7 +104,7 @@ PlayerController::Update(Game &Engine)
 
         bool clickedOnButton = false;
         const vec2 screenMousePos = Engine.Screen.ViewportToWorld(
-          { Engine.Input.MouseX, Engine.Input.MouseY });
+          { Engine.CurrentInput.MouseX, Engine.CurrentInput.MouseY });
         if (_selected) {
             for (auto &button : _availableActions) {
                 if (button.Box.Contains(screenMousePos)) {
@@ -231,7 +231,7 @@ PlayerController::Draw(Game &Engine)
     Engine.Screen.DrawRectangle(Rectangle::FromCorner({ 0, 0 }, 1920, 180),
                                 Colors::Black);
 
-    auto font = Engine.Content.LoadFont("C:/Windows/fonts/times.ttf", 32);
+    auto font = Engine.Content.LoadFont("content/testfont.ttf", 32);
 
     Engine.Screen.DrawRectangle(
       Rectangle::FromCorner({ 1920 - 150, 60 }, 120, 60), Colors::Green);

@@ -18,9 +18,7 @@ DEBUG_LoadFont(const std::string &filename, int pxSize, const Shader *s)
 {
     if (!Freetype) {
         auto err = FT_Init_FreeType(&Freetype);
-        if (err) {
-            throw err;
-        }
+        assert(!err);
     }
 
     FT_Face face;
@@ -28,14 +26,10 @@ DEBUG_LoadFont(const std::string &filename, int pxSize, const Shader *s)
     // TODO: actually enumerate face indexes instead of just taking
     // the first one
     auto err = FT_New_Face(Freetype, filename.c_str(), 0, &face);
-    if (err) {
-        throw err;
-    }
+    assert(!err);
 
     err = FT_Set_Pixel_Sizes(face, 0, pxSize);
-    if (err) {
-        throw err;
-    }
+    assert(!err);
 
     std::map<uint64_t, Character> points{};
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction
@@ -109,9 +103,9 @@ Font::RenderText(const std::string &text, mat3 matrix, vec4 color) const
         auto ch = _codepoints.at(c);
 
         vec2 chPos = { pos.x + ch.Offset.x,
-                       pos.y - (ch.Texture->Height - ch.Offset.y) };
+                       pos.y - (ch.Tex->Height - ch.Offset.y) };
 
-        vec2 wh = { float(ch.Texture->Width), float(ch.Texture->Height) };
+        vec2 wh = { float(ch.Tex->Width), float(ch.Tex->Height) };
 
         mat3 screenToHUD =
           matrix * Translate(chPos) * Translate(wh / 2) * Scale(wh); /**/
@@ -121,7 +115,7 @@ Font::RenderText(const std::string &text, mat3 matrix, vec4 color) const
                     color.g,
                     color.b);
 
-        DEBUG_DrawTexture(ch.Texture, screenToHUD, FullImage, Colors::White);
+        DEBUG_DrawTexture(ch.Tex, screenToHUD, FullImage, Colors::White);
         pos.x += ch.Advance.x / 64;
     }
 }
@@ -143,7 +137,7 @@ DEBUG_LoadTexture(const std::string &filename)
     Texture s;
     uint8_t *mem = stbi_load(filename.c_str(), &s.Width, &s.Height, nullptr, 4);
     if (!mem)
-        throw std::exception("file load failed");
+        throw std::runtime_error("file load failed");
     s.Memory.assign(mem, mem + s.Width * s.Height * 4);
 
     glGenTextures(1, &s.TextureID);

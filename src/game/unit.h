@@ -35,7 +35,8 @@ class MoveAction
 public:
 	inline MoveAction(const std::string &name = "Move")
 		: _name(name) {}
-	const std::string &Name() inline const
+
+	const std::string &Name() const
 	{
 		return _name;
 	}
@@ -52,7 +53,7 @@ public:
 	inline AttackAction(float damage, float range, const std::string &name = "Attack")
 		: Damage(damage), Range(range), _name(name) {}
 
-	const std::string &Name() inline const
+	const std::string &Name() const
 	{
 		return _name;
 	}
@@ -90,7 +91,7 @@ struct Order
 
     // Mirage stores a temporary look at the state of the Unit
 	// after the order is performed.
-	Mirage Mirage = { 0 };
+	::Mirage Mirage = { 0 };
 
 	UnitID Obj;
 

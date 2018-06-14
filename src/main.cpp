@@ -4,6 +4,7 @@
 #include <exception>
 #include <iostream>
 #include <typeinfo>
+#include <unistd.h>
 
 #include "GLFW/glfw3.h"
 
@@ -26,9 +27,18 @@ static_assert(sizeof(float) == sizeof(GLfloat), "float != GLfloat");
 string
 GetGameRootDir()
 {
-    char *path = getcwd(nullptr, 32);
+    std::size_t size = 32;
+    char *path = new char[size];
+
+    while(!getcwd(path, size)) {
+        assert(errno == ERANGE);
+        delete[] path;
+        size += 32;
+        path = new char[size];
+    }
+
     std::string result =
-      (path ? path : throw std::exception("getcwd returned nullptr"));
+      (path ? path : throw std::runtime_error("getcwd returned nullptr"));
     Log(result);
 
     free(path);
@@ -92,14 +102,14 @@ main(int argc, char **argv)
             g.ShouldClose = glfwWindowShouldClose(window) != 0;
             ++DEBUG_loop;
 
-            g.OldInput = g.Input;
+            g.OldInput = g.CurrentInput;
 
-            for (size_t i = 0; i < countof_array(g.Input.Keyboard); ++i) {
-                g.Input.Keyboard[i] = glfwGetKey(window, i) != 0;
+            for (size_t i = 0; i < countof_array(g.CurrentInput.Keyboard); ++i) {
+                g.CurrentInput.Keyboard[i] = glfwGetKey(window, i) != 0;
             }
 
-            for (size_t i = 0; i < countof_array(g.Input.Mouse); ++i) {
-                g.Input.Mouse[i] = glfwGetMouseButton(window, i) != 0;
+            for (size_t i = 0; i < countof_array(g.CurrentInput.Mouse); ++i) {
+                g.CurrentInput.Mouse[i] = glfwGetMouseButton(window, i) != 0;
             }
 
             int x, y;
@@ -107,8 +117,8 @@ main(int argc, char **argv)
             double mx, my;
             glfwGetCursorPos(window, &mx, &my);
 
-            g.Input.MouseX = 2 * static_cast<float>(mx) / x - 1;
-            g.Input.MouseY = 1 - static_cast<float>(my) / y * 2;
+            g.CurrentInput.MouseX = 2 * static_cast<float>(mx) / x - 1;
+            g.CurrentInput.MouseY = 1 - static_cast<float>(my) / y * 2;
 
             Game_Update(g);
 
@@ -141,9 +151,7 @@ main(int argc, char **argv)
         glfwTerminate();
 
 #ifdef DEBUG_EXCEPTION_HANDLE
-    }
-
-    catch (std::exception e) {
+    } catch (std::exception e) {
         std::cout << e.what() << endl;
         std::exit(-1);
     }

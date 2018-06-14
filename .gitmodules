@@ -4,3 +4,6 @@
 [submodule "libaudiodecoder"]
 	path = deps/libaudiodecoder
 	url = https://github.com/asantoni/libaudiodecoder/
+[submodule "deps/glfw"]
+	path = deps/glfw
+	url = https://github.com/glfw/glfw

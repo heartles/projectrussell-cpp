@@ -89,25 +89,19 @@ ContentManager::LoadSound(const std::string &f)
 {
 	std::string filename = _dataDir + f;
 
-	AudioDecoder decoder{ filename };
-	assert(decoder.open() == 0); // TODO: Graceful error handling
+    SF_INFO info{0};
+    SNDFILE *file = sf_open(filename.c_str(), SFM_READ, &info);
+	assert(file); // TODO: Graceful error handling
 
-	int samplesToRead = decoder.numSamples();
-	decoder.seek(0);
+	int samplesToRead = info.frames;
 
 	std::vector<float> samples(samplesToRead);
 
-	uint64_t totalSamplesRead = 0;
-	int lastSamplesRead;
-	do {
-		lastSamplesRead = decoder.read(
-			min(8192, samplesToRead - totalSamplesRead),
-			samples.data() + totalSamplesRead);
-
-		totalSamplesRead += lastSamplesRead;
-	} while (totalSamplesRead < samplesToRead && lastSamplesRead);
+    sf_read_float(file, samples.data(), samples.size());
 	
-	Sound s = { std::move(samples), decoder.channels(), decoder.sampleRate() };
+	Sound s = { std::move(samples), info.samplerate, info.channels };
 	_sounds[filename] = s;
+
+    sf_close(file);
 	return &_sounds[filename];
 }

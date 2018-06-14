@@ -9,14 +9,22 @@ AudioManager::AudioManager()
 {
 	auto err = Pa_Initialize();
 	if (err != paNoError)
-		throw std::exception{ Pa_GetErrorText(err) };
+		throw std::runtime_error{ Pa_GetErrorText(err) };
 
 	PaStreamParameters params;
 	params.channelCount = 2;
 	params.device = Pa_GetDefaultOutputDevice();
+	
+	// handle default device not available
+	if (params.device == paNoDevice) {
+		int count = Pa_GetDeviceCount();
+	}
+
+	assert(params.device != paNoDevice);
 	params.hostApiSpecificStreamInfo = nullptr;
 	params.sampleFormat = paFloat32;
 	const PaDeviceInfo *inf = Pa_GetDeviceInfo(params.device);
+	assert(inf);
 	params.suggestedLatency = inf->defaultLowOutputLatency;
 	Log("Running with Latency " + std::to_string(params.suggestedLatency) + 
 		" at sample rate " + std::to_string(inf->defaultSampleRate));
@@ -40,11 +48,11 @@ AudioManager::AudioManager()
 		},
 		this);
 	if (err != paNoError)
-		throw std::exception{ Pa_GetErrorText(err) };
+		throw std::runtime_error{ Pa_GetErrorText(err) };
 
 	err = Pa_StartStream(_stream);
 	if (err != paNoError)
-		throw std::exception{ Pa_GetErrorText(err) };
+		throw std::runtime_error{ Pa_GetErrorText(err) };
 }
 
 AudioManager::~AudioManager()

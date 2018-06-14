@@ -76,7 +76,7 @@ struct Texture
     std::vector<uint8_t> Memory;
     GLuint TextureID;
 
-    inline Sprite Sprite() const
+    inline ::Sprite Sprite() const
     {
         return { this, Rectangle{ 0.5f, 0.5f, 0.5f, 0.5f } };
     }
@@ -84,7 +84,7 @@ struct Texture
 
 struct Character
 {
-    const Texture *Texture;
+    const Texture *Tex;
     ivec2 Offset;  // Offset from origin to left/top of char
     ivec2 Advance; // Offset to next char/line
 };

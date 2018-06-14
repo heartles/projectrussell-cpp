@@ -10,7 +10,13 @@ $(error OUTDIR not set)
 endif
 
 .PHONY: dir all clean
-all: shaders $(artExport) $(levels) $(sounds)
+# all: shaders $(artExport) $(levels) $(sounds)
+
+content: $(levels) dir
+	cp content/Shaders/* $(OUTDIR)
+	cp content/Sound/* $(OUTDIR)
+	cp content/Art/* $(OUTDIR)
+	cp content/testfont.ttf $(OUTDIR)
 
 # TODO: figure out why incremental builds aren't working
 # For now it's okay though, since building content takes ~2 sec

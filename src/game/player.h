@@ -11,7 +11,7 @@
 
 struct ActionButton
 {
-	Action *Action;
+	::Action *Action;
     Rectangle Box = { 0 };
 };
 
