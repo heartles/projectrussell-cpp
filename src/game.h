@@ -17,6 +17,13 @@
 struct Level;
 struct Game;
 
+STRONG_TYPEDEF(ComponentID, uint64_t);
+
+class GameComponent {
+public:
+	virtual ~GameComponent() {};
+};
+
 class Updateable
 {
   public:
@@ -45,14 +52,20 @@ class RenderOrder
 inline bool
 operator<(const RenderOrder &x, const RenderOrder &y)
 {
-    return static_cast<int16_t>(x) < static_cast<int16_t>(y);
+  return static_cast<int16_t>(x) > static_cast<int16_t>(y);
 }
 
 class Renderable
 {
-  public:
-    virtual void Draw(Game &g) = 0;
-    virtual RenderOrder RequestedDrawOrder() = 0;
+  RenderOrder _order;
+protected:
+  Renderable(RenderOrder x = RenderOrder(0))
+    : _order(x) {}
+public:
+  virtual void Draw(Game &g) = 0;
+  RenderOrder RequestedDrawOrder() const {
+    return _order;
+  }
 };
 
 struct Level
@@ -71,32 +84,7 @@ struct Level
         throw std::invalid_argument("tile gid is out of range of all tilesets");
     }
 
-    Pool<Unit> Units;
-    Pool<Order> Orders;
 
-	inline Unit *GetUnit(UnitID id)
-	{
-        assert(id);
-		return std::find_if(Units.begin(), Units.end(), 
-			[=](const Unit &u) {
-				return u.ID() == id;
-			});
-	}
-
-    inline UnitID GetNext(UnitID id)
-    {
-        assert(id);
-        auto u = std::find_if(Units.begin(), Units.end(),
-            [=](const Unit &u) {
-            return u.ID() == id;
-        });
-        if (!u) return 0;
-
-        u++;
-        if (u == Units.end()) return 0;
-
-        return u->ID();
-    }
 };
 
 void BeginTurnProcessing(Game &);
@@ -110,53 +98,59 @@ struct Input
 
 struct Game
 {
-    template <typename T>
-    using refcount_arr = std::vector<std::shared_ptr<T>>;
+  template <typename T>
+  using ref_arr = std::vector<std::reference_wrapper<T>>;
 
-    float DT;
-    Input OldInput;
-    Input CurrentInput;
-    bool ShouldClose;
+  float DT;
+  Input OldInput;
+  Input CurrentInput;
 
-    vec4 ClearColor;
+  vec4 ClearColor;
 
-    OrthoView View;
-    OrthoView Screen;
+  OrthoView View;
+  OrthoView Screen;
 
-    ::Level Level;
+  ::Level Level;
 
-    ContentManager Content;
+  ContentManager Content;
 	AudioManager Audio;
 
-    refcount_arr<Renderable> Renderables;
-    refcount_arr<Updateable> Updateables;
+  std::vector<std::unique_ptr<GameComponent>> Components{};
 
-    template <typename T>
-    void Add(T v)
-    {
-        static_assert(std::is_base_of<Renderable, T>::value ||
-                        std::is_base_of<Updateable, T>::value,
-                      "Unable to convert type T to any of the following: "
-                      "Renderable, Updateable");
+  ref_arr<Renderable> Renderables;
+  ref_arr<Updateable> Updateables;
 
-        auto val = std::make_shared<T>(std::move(v));
+  bool ShouldClose;
 
-        // TODO: We know at compile time which interfaces T can convert to,
-        // can we do the actual cast at compile time instead of runtime?
-        if (std::is_base_of<Renderable, T>::value) {
-            Renderables.push_back(std::dynamic_pointer_cast<Renderable>(val));
-            stdex::sort(Renderables,
-                        [](const std::shared_ptr<Renderable> &a,
-                           const std::shared_ptr<Renderable> &b) {
-                            return a->RequestedDrawOrder() <
-                                   b->RequestedDrawOrder();
-                        });
-        }
+  template <typename T>
+  void AddComponent(T &&v)
+  {
+    static_assert(std::is_base_of<GameComponent, T>::value,
+                  "Unable to convert type T to GameComponent");
 
-        if (std::is_base_of<Updateable, T>::value) {
-            Updateables.push_back(std::dynamic_pointer_cast<Updateable>(val));
-        }
+    auto val = std::make_unique<T>(std::move(v));
+    
+    // TODO: Postpone adds until after update
+    if constexpr (std::is_base_of<Renderable, T>::value) {
+      Renderables.push_back(*val);
+      stdex::sort(Renderables,
+                  [](const auto &a,
+                      const auto &b) {
+                      return a.get().RequestedDrawOrder() <
+                              b.get().RequestedDrawOrder();
+                  });
     }
+
+    if constexpr (std::is_base_of<Updateable, T>::value) {
+      Updateables.push_back(*val);
+    }
+
+    Components.push_back(std::unique_ptr<GameComponent>{ val.release() });
+  }
+
+  inline bool KeyDown(int id) const {
+    return CurrentInput.Keyboard[id];
+  }
 
     inline bool KeyPressed(int id) const
     {
@@ -178,7 +172,7 @@ struct Game
     T *GetRenderable()
     {
         for (auto &v : Renderables) {
-            auto val = dynamic_cast<T *>(v.get());
+            auto val = dynamic_cast<T *>(&v.get());
             if (val) return val;
         }
 

@@ -13,9 +13,3 @@ AudioManager::DEBUG_Renderer::Draw(Game &g)
 	g.Screen.DrawRectangle({ x1, y, width, height }, Colors::Blue);
 	g.Screen.DrawRectangle({ x2, y, width, height }, Colors::Red);
 }
-
-RenderOrder
-AudioManager::DEBUG_Renderer::RequestedDrawOrder()
-{
-	return RenderOrder{ INT16_MAX };
-}

@@ -89,7 +89,7 @@ ContentManager::LoadSound(const std::string &f)
 {
 	std::string filename = _dataDir + f;
 
-    SF_INFO info{0};
+    SF_INFO info{};
     SNDFILE *file = sf_open(filename.c_str(), SFM_READ, &info);
 	assert(file); // TODO: Graceful error handling
 

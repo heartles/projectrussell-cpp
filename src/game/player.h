@@ -9,30 +9,16 @@
 #include "../pool.h"
 #include "unit.h"
 
-struct ActionButton
+class GameEntity 
+    : public GameComponent, public Updateable, public Renderable
 {
-	::Action *Action;
-    Rectangle Box = { 0 };
-};
-
-class PlayerController : public Updateable, public Renderable
-{
-    Unit *_selected = nullptr;
-
-    ActionButton *_selectedAction = nullptr;
-	std::vector<ActionButton> _availableActions{};
-
-    void selectUnit(Unit *u);
-    void deselectUnit(Unit *u);
-
-	// Sounds
-	using Sound_t = const Sound *;
-	Sound_t _snd_no;
-
   public:
-	PlayerController(Game &);
+    vec2 Pos;
+    Sprite Spr;
+    float Speed;
+    
+	GameEntity(Game &);
 
     virtual void Update(Game &) override;
     virtual void Draw(Game &) override;
-    virtual RenderOrder RequestedDrawOrder() override;
 };

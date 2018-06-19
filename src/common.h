@@ -38,15 +38,13 @@ public: \
 	name(name &&) = default; \
 	name &operator=(const name &) = default; \
 	name &operator=(name &&) = default; \
+	inline bool operator==(const name &other) {\
+		return _t == other._t;\
+	}\
 };
 
 // Defines equality comparisons for a STRONG_TYPEDEF
-#define STRONG_TYPEDEF_EQUALITY(name, type) \
-inline bool \
-operator==(const name &x, const name &y) \
-{ \
-	return type(x) == type(y); \
-}
+#define STRONG_TYPEDEF_EQUALITY(name, type) 
 
 namespace stdex {
     template <typename Container, typename Predicate>

@@ -54,7 +54,7 @@ Game_Init(Game &info)
 
 	snd = info.Audio.PlaySound(info.Content.LoadSound("/content/song.wav"));
 	
-	info.Add(AudioManager::DEBUG_Renderer{});
+	// info.AddComponent(AudioManager::DEBUG_Renderer{});
 
     LoadLevel(fileLoc, info);
 }
@@ -145,7 +145,7 @@ LoadLevel(const std::string &fileLoc, Game &info)
         }
     }
 
-    info.Add(UnitRenderer{});
+    // info.Add(UnitRenderer{});
 
     for (auto &t : level.Tilesets) {
         glGenVertexArrays(1, &t.VertexArrayID);
@@ -171,8 +171,8 @@ LoadLevel(const std::string &fileLoc, Game &info)
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
     }
 
-    info.Add(PlayerController{info});
-    info.Add(TilemapRenderer{});
+    // info.AddComponent(PlayerController{info});
+    info.AddComponent(TilemapRenderer{});
 }
 
 void
@@ -256,7 +256,7 @@ Game_Update(Game &info)
         info.ShouldClose = true;
 
     for (auto c : info.Updateables) {
-        c->Update(info);
+        c.get().Update(info);
     }
 
 	if (info.KeyPressed(GLFW_KEY_SPACE)) {
@@ -273,6 +273,6 @@ Game_Render(Game &info)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     for (auto c : info.Renderables) {
-        c->Draw(info);
+        c.get().Draw(info);
     }
 }

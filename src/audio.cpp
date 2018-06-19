@@ -18,6 +18,9 @@ AudioManager::AudioManager()
 	// handle default device not available
 	if (params.device == paNoDevice) {
 		int count = Pa_GetDeviceCount();
+		Log(std::to_string(count) + " PortAudio devices found but none"
+			" were default.");
+		throw std::runtime_error{"Unable to get audio device"};
 	}
 
 	assert(params.device != paNoDevice);
@@ -35,11 +38,11 @@ AudioManager::AudioManager()
 		44100, // sample rate
 		paFramesPerBufferUnspecified, // frames per buffer
 		0,
-		[](const void *input,
+		[](const void *,
 			void *output,
 			unsigned long frameCount,
-			const PaStreamCallbackTimeInfo* timeInfo,
-			PaStreamCallbackFlags statusFlags,
+			const PaStreamCallbackTimeInfo *,
+			PaStreamCallbackFlags,
 			void *userData)
 		-> int {
 			auto manager = static_cast<AudioManager *>(userData);
@@ -75,7 +78,7 @@ AudioManager::outputSamplesInternal(void *o, uint64_t count)
 {
 	float *output = static_cast<float *>(o);
 
-	for (int i = 0; i < count * channels; i++) {
+	for (uint64_t i = 0; i < count * channels; i++) {
 		*output++ = _buf[_readHead];
 		_buf[_readHead++] = 0;
 	}
@@ -95,11 +98,11 @@ AudioManager::RenderSound(float dt)
 
 	auto advance = target - _writeHead;
 
-	for (int u = 0; u < _playingSounds.size(); u++) {
+	for (uint64_t u = 0; u < _playingSounds.size(); u++) {
 		auto &sound = _playingSounds[u];
 		int write = 0;
 		auto &samples = sound._sound->_samples;
-		int read = sound._readHead;
+		uint64_t read = sound._readHead;
 
 		if (sound.Active)
 		for (int i = 0; i < samplesToWrite; i++) {

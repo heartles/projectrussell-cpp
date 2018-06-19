@@ -3,19 +3,11 @@
 #include "../game.h"
 #include "unit.h"
 
-class UnitRenderer : public Renderable
+class TilemapRenderer : public GameComponent, public Renderable
 {
-	UnitID _unitRendering = Unit::NullID;
-	float _animProgress;
   public:
-    virtual void Draw(Game &) override;
-    virtual RenderOrder RequestedDrawOrder() override;
-	void BeginRenderAnimations(Game &);
-};
 
-class TilemapRenderer : public Renderable
-{
-  public:
+    TilemapRenderer()
+      : Renderable(RenderOrder(100)) {}
     virtual void Draw(Game &) override;
-    virtual RenderOrder RequestedDrawOrder() override;
 };

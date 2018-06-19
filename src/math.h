@@ -123,7 +123,10 @@ union vec2
 
     static inline vec2 FromMagnitudeTheta(float magnitude, float theta)
     {
-        return { magnitude * cos(theta), magnitude * sin(theta) };
+        return { 
+            magnitude * static_cast<float>(cos(theta)), 
+            magnitude * static_cast<float>(sin(theta))
+        };
     }
 };
 
@@ -352,13 +355,15 @@ union mat3
 {
     struct
     {
-        float m00, m10, m20, m01, m11, m21, m02, m12, m22;
+        float m00 = 0, m10 = 0, m20 = 0, 
+            m01 = 0, m11 = 0, m21 = 0, 
+            m02 = 0, m12 = 0, m22 = 0;
     };
     vec3 _arr[3];
 
     inline static mat3 FromCols(vec3 a, vec3 b, vec3 c)
     {
-        mat3 m = { 0 };
+        mat3 m{};
         m._arr[0] = a;
         m._arr[1] = b;
         m._arr[2] = c;

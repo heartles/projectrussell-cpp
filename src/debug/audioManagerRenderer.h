@@ -10,8 +10,10 @@
 class AudioManager::DEBUG_Renderer 
 	: public Renderable
 {
+public:
+	DEBUG_Renderer()
+		: Renderable(RenderOrder(-100)) {}
 	virtual void Draw(Game &g) override;
-	virtual RenderOrder RequestedDrawOrder() override;
 };
 
 #endif // AUDIO_MANAGER_RENDERER_H

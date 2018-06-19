@@ -36,11 +36,11 @@ class ActiveSound
 	ActiveSoundHandle _id;
 	const Sound *_sound;
 
-	int _readHead = 0;
+	uint64_t _readHead = 0;
 public:
 
 	inline ActiveSound(const Sound *snd, ActiveSoundHandle id)
-		: _sound(snd), _id(id) {}
+		: _id(id), _sound(snd) {}
 
 	ActiveSound() = default;
 	ActiveSound(const ActiveSound &) = default;

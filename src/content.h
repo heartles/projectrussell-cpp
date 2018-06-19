@@ -33,9 +33,9 @@ struct FontDescCmp
 
 class ContentManager
 {
-    std::map<std::pair<std::string, std::string>, Shader> _shaders{};
-    std::map<std::string, Texture> _textures{};
-    std::map<FontDesc, Font, FontDescCmp> _fonts{};
+  std::map<std::pair<std::string, std::string>, Shader> _shaders{};
+  std::map<std::string, Texture> _textures{};
+  std::map<FontDesc, Font, FontDescCmp> _fonts{};
 	std::map<std::string, Sound> _sounds{};
 
     const Shader *_defaultFontShader;

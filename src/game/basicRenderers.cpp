@@ -5,108 +5,108 @@
 const int UNIT_LAYER = -10;
 const int TILE_LAYER = -100;
 
-// Returns true if there are still orders remaining
-// False otherwise
-bool
-ProcessOrder(Game &Engine, Order *o, Unit *u)
-{
-    std::visit(make_overload(
-        [](const NullOrder &) {},
-        [&](const MoveOrder &move){
-            Log("\t\tExecuting Move from " + std::to_string(u->TilePos) +
-                    " to " + std::to_string(move.TargetPos));
-            u->TilePos = move.TargetPos;
-        }, 
-        [&](const AttackOrder &att){
-            const auto otherUnitID = Engine.Level.GetUnit(att.Target)->ID();
-            Log("\t\tAttack made against unit " +
-                std::to_string(otherUnitID));
-        }), o->Data);
+// // Returns true if there are still orders remaining
+// // False otherwise
+// bool
+// ProcessOrder(Game &Engine, Order *o, Unit *u)
+// {
+//     std::visit(make_overload(
+//         [](const NullOrder &) {},
+//         [&](const MoveOrder &move){
+//             Log("\t\tExecuting Move from " + std::to_string(u->TilePos) +
+//                     " to " + std::to_string(move.TargetPos));
+//             u->TilePos = move.TargetPos;
+//         }, 
+//         [&](const AttackOrder &att){
+//             const auto otherUnitID = Engine.Level.GetUnit(att.Target)->ID();
+//             Log("\t\tAttack made against unit " +
+//                 std::to_string(otherUnitID));
+//         }), o->Data);
 
-    auto nextO = o->Next;
-    Engine.Level.Orders.Free(o);
-    u->Orders = nextO;
-    if (nextO) {
-        nextO->Last = nullptr;
-        return false;
-    }
+//     auto nextO = o->Next;
+//     Engine.Level.Orders.Free(o);
+//     u->Orders = nextO;
+//     if (nextO) {
+//         nextO->Last = nullptr;
+//         return false;
+//     }
 
-    return true;
-}
+//     return true;
+// }
 
-void
-UnitRenderer::Draw(Game &Engine)
-{
-	if (!_unitRendering) {
-		for (auto &u : Engine.Level.Units) {
-			DrawUnit(&Engine, u);
-		}
-		return;
-	}
+// void
+// UnitRenderer::Draw(Game &Engine)
+// {
+// 	if (!_unitRendering) {
+// 		for (auto &u : Engine.Level.Units) {
+// 			DrawUnit(&Engine, u);
+// 		}
+// 		return;
+// 	}
 
-	Unit &unit = *Engine.Level.GetUnit(_unitRendering);
+// 	Unit &unit = *Engine.Level.GetUnit(_unitRendering);
 
-	Order &currentOrder = *unit.Orders;
-	auto handler = make_overload(
-		[](const NullOrder &) { return true; },
-		[&currentOrder, this, &Engine, &unit](const MoveOrder &o)
-		{
-			const auto lastPos = unit.TilePos;
-			auto totalDist = AbsComponentSum(o.TargetPos - lastPos); 
-			//TODO: allow movement along diagonal
+// 	Order &currentOrder = *unit.Orders;
+// 	auto handler = make_overload(
+// 		[](const NullOrder &) { return true; },
+// 		[&currentOrder, this, &Engine, &unit](const MoveOrder &o)
+// 		{
+// 			const auto lastPos = unit.TilePos;
+// 			auto totalDist = AbsComponentSum(o.TargetPos - lastPos); 
+// 			//TODO: allow movement along diagonal
 
-			auto totalTime = abs(totalDist * 0.5f);
+// 			auto totalTime = abs(totalDist * 0.5f);
 
-			//TODO: pathfinding
-			auto pos = Lerp(
-				vec2(GetTileCenter(lastPos)),
-				vec2(GetTileCenter(o.TargetPos)),
-				_animProgress / totalTime);
+// 			//TODO: pathfinding
+// 			auto pos = Lerp(
+// 				vec2(GetTileCenter(lastPos)),
+// 				vec2(GetTileCenter(o.TargetPos)),
+// 				_animProgress / totalTime);
 			
-			Engine.View.DrawSprite(
-				unit.Spr, pos, 0, { 0.5f, 0.5f }, Colors::White);
+// 			Engine.View.DrawSprite(
+// 				unit.Spr, pos, 0, { 0.5f, 0.5f }, Colors::White);
 
-			return _animProgress >= totalTime;
-		},
-		[](const AttackOrder &o)
-		{
-			Log("Attacking");
-			return true;
-		});
+// 			return _animProgress >= totalTime;
+// 		},
+// 		[](const AttackOrder &o)
+// 		{
+// 			Log("Attacking");
+// 			return true;
+// 		});
 
-	bool finished = std::visit(handler, currentOrder.Data);
+// 	bool finished = std::visit(handler, currentOrder.Data);
 
-    _animProgress += Engine.DT;
-	if (finished) {
-        _animProgress = 0;
-        if (ProcessOrder(Engine, &currentOrder, &unit)) {
-            Unit *u = &unit;
-            while (_unitRendering && !u->Orders) {
-                u = Engine.Level.GetUnit(_unitRendering);
-                _unitRendering = Engine.Level.GetNext(u->ID());
-            }
-        }
-	}
+//     _animProgress += Engine.DT;
+// 	if (finished) {
+//         _animProgress = 0;
+//         if (ProcessOrder(Engine, &currentOrder, &unit)) {
+//             Unit *u = &unit;
+//             while (_unitRendering && !u->Orders) {
+//                 u = Engine.Level.GetUnit(_unitRendering);
+//                 _unitRendering = Engine.Level.GetNext(u->ID());
+//             }
+//         }
+// 	}
 
-}
+// }
 
-void 
-UnitRenderer::BeginRenderAnimations(Game &Engine) 
-{
-	for (auto &u : Engine.Level.Units) {
-		if (u.Orders) {
-			_unitRendering = u.ID();
-			_animProgress = 0.0f;
-			return;
-		}
-	}
-}
+// void 
+// UnitRenderer::BeginRenderAnimations(Game &Engine) 
+// {
+// 	for (auto &u : Engine.Level.Units) {
+// 		if (u.Orders) {
+// 			_unitRendering = u.ID();
+// 			_animProgress = 0.0f;
+// 			return;
+// 		}
+// 	}
+// }
 
-RenderOrder
-UnitRenderer::RequestedDrawOrder()
-{
-    return RenderOrder(UNIT_LAYER);
-}
+// RenderOrder
+// UnitRenderer::RequestedDrawOrder()
+// {
+//     return RenderOrder(UNIT_LAYER);
+// }
 
 void
 TilemapRenderer::Draw(Game &Engine)
@@ -132,18 +132,4 @@ TilemapRenderer::Draw(Game &Engine)
 
         glDrawArrays(GL_TRIANGLES, 0, t.Positions.size());
     }
-}
-
-RenderOrder
-TilemapRenderer::RequestedDrawOrder()
-{
-    return RenderOrder(TILE_LAYER);
-}
-
-//TODO: Split up animation and turn processing code
-void
-BeginTurnProcessing(Game &Engine)
-{
-    auto r = Engine.GetRenderable<UnitRenderer>();
-    r->BeginRenderAnimations(Engine);
 }

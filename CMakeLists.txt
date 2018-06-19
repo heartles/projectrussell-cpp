@@ -19,7 +19,8 @@ set_property(TARGET russell PROPERTY CXX_STANDARD 17)
 set_property(TARGET russell PROPERTY CXX_STANDARD_REQUIRED ON)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
-    # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+    set_target_properties(russell PROPERTIES
+        COMPILE_FLAGS "${COMPILE_FLAGS} -Wall -Wextra")
 endif()
 
 add_subdirectory("vendor/glad")

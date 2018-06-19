@@ -1,17 +1,17 @@
 #pragma once
 
 #include <memory>
-#include <variant>
 
 #include "../graphics.h"
 #include "../math.h"
 
+#if 0
 using UnitID = uint64_t;
 
 struct Mirage
 {
-    Sprite Spr = { 0 };
-    ivec2 TilePos;
+	Sprite Spr = { 0 };
+	ivec2 TilePos;
 
 	float StdActionRemaining = 6;
 	float MoveActionRemaining = 6;
@@ -86,7 +86,7 @@ using OrderData = std::variant<NullOrder, MoveOrder, AttackOrder>;
 class Unit;
 struct Order
 {
-    Order *Next = nullptr;
+	Order *Next = nullptr;
 	Order *Last = nullptr;
 
     // Mirage stores a temporary look at the state of the Unit
@@ -185,3 +185,4 @@ auto make_overload(T... ts)
 {
 	return overload<T...>(ts...);
 }
+#endif
