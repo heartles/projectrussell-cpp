@@ -5,12 +5,19 @@
 #include <cctype>
 #include <cstdint>
 #include <cstdlib>
+#include <exception>
 #include <map>
 #include <sstream>
 #include <string>
 #include <vector>
 
 #include "math.h"
+
+#define STRINGIFY(x) #x
+#define TO_STRING(x) STRINGIFY(x)
+#define LINE_STR TO_STRING(__LINE__)
+#define CODE_REF_STRING (std::string(__func__) + " (" __FILE__ ":" LINE_STR ")")
+#define NOT_IMPLEMENTED() throw std::logic_error("Not Implemented: " + CODE_REF_STRING)
 
 #define internal_function static
 #define internal_variable static
